@@ -1,5 +1,5 @@
 ---
-mode: dev
+agent: dev
 ---
 # Dev Team Implementation Flow
 
@@ -83,14 +83,18 @@ Loop until all tests pass:
 - Refine implementation
 - Ensure quality gates are met
 
-### 13. Write the MADR
-Create a Markdown Architectural Decision Record (MADR) in `specs\adr`:
-- Use sequential numbering (e.g., `0001-decision-title.md`)
-- Present **3 options** considered for the implementation
-- Document decision drivers and context
-- Explain why the chosen option was selected
-- Include consequences and trade-offs
-- This is critical for future maintainability
+### 13. Document Implementation Notes (if needed)
+If you encountered implementation details worth documenting:
+- Document minor technical decisions in code comments
+- Update relevant documentation in `/docs`
+- Add inline documentation for complex logic
+
+**Note**: If you discover that significant architectural decisions are needed during implementation:
+- **STOP** - Do not make major architectural decisions during implementation
+- **Hand back to `@architect`** to create proper ADRs first
+- Provide context: what decision is needed, what the blocker is
+- Wait for ADR creation and standards update before proceeding
+- This ensures architectural decisions are made deliberately with proper evaluation
 
 ### 14. Update Documentation
 Write or update documentation following guidelines in `AGENTS.md`:
