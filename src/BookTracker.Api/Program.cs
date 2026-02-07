@@ -5,8 +5,10 @@ using BookTracker.Api.Endpoints;
 using BookTracker.Core.Entities;
 using BookTracker.Core.Exceptions;
 using BookTracker.Core.Models;
+using BookTracker.Core.Repositories;
 using BookTracker.Core.Services;
 using BookTracker.Infrastructure.Data;
+using BookTracker.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
@@ -77,6 +79,8 @@ try
     // Register application services
     builder.Services.AddSingleton<JwtTokenService>();
     builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+    builder.Services.AddScoped<IBookRepository, BookRepository>();
+    builder.Services.AddScoped<IBookService, BookService>();
 
     // Configure CORS
     var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
@@ -197,8 +201,11 @@ try
                 var statusCode = exception switch
                 {
                     BookTracker.Core.Exceptions.UserAlreadyExistsException => StatusCodes.Status409Conflict,
+                    BookTracker.Core.Exceptions.DuplicateBookException => StatusCodes.Status409Conflict,
                     BookTracker.Core.Exceptions.AccountLockedException => 423,
                     BookTracker.Core.Exceptions.AuthenticationException => StatusCodes.Status401Unauthorized,
+                    BookTracker.Core.Exceptions.BookNotFoundException => StatusCodes.Status404NotFound,
+                    BookTracker.Core.Exceptions.BookAccessDeniedException => StatusCodes.Status403Forbidden,
                     ArgumentException => StatusCodes.Status400BadRequest,
                     UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
                     KeyNotFoundException => StatusCodes.Status404NotFound,
@@ -256,6 +263,9 @@ try
 
     // Map authentication endpoints (register, login, logout, me)
     app.MapAuthEndpoints();
+
+    // Map book library endpoints
+    app.MapBookEndpoints();
 
     app.Run();
 
