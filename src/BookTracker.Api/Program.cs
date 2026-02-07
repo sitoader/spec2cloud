@@ -39,10 +39,10 @@ try
     if (builder.Environment.IsProduction())
     {
         var keyVaultUri = builder.Configuration["Azure:KeyVault:VaultUri"];
-        if (!string.IsNullOrEmpty(keyVaultUri))
+        if (!string.IsNullOrEmpty(keyVaultUri) && Uri.TryCreate(keyVaultUri, UriKind.Absolute, out var vaultUri))
         {
             builder.Configuration.AddAzureKeyVault(
-                new Uri(keyVaultUri),
+                vaultUri,
                 new DefaultAzureCredential());
         }
     }
@@ -130,6 +130,20 @@ try
             ValidAudience = jwtSettings["Audience"],
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
+        };
+
+        // Allow JWT to be read from cookie as well as Authorization header
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                // Check if token exists in cookie
+                if (context.Request.Cookies.TryGetValue("auth_token", out var token))
+                {
+                    context.Token = token;
+                }
+                return Task.CompletedTask;
+            }
         };
     });
 

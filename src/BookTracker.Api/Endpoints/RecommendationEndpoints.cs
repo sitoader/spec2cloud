@@ -37,7 +37,8 @@ public static class RecommendationEndpoints
         HttpContext httpCtx,
         GenerateRecommendationsRequest? request)
     {
-        var userId = httpCtx.User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        var userId = httpCtx.User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                     ?? httpCtx.User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
             return Results.Json(

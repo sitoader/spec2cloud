@@ -134,7 +134,8 @@ public static class BookEndpoints
     private static async Task<IResult> AddBookHandler(
         AddBookRequest payload,
         IBookService svc,
-        HttpContext httpCtx)
+        HttpContext httpCtx,
+        ILogger<Program> logger)
     {
         var userId = GetUserId(httpCtx);
         if (userId is null) return Results.Unauthorized();
@@ -163,6 +164,17 @@ public static class BookEndpoints
                 Message = ex.Message,
                 TraceId = httpCtx.TraceIdentifier,
             });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error adding book: {Message}", ex.Message);
+            return Results.Json(
+                new ErrorResponse
+                {
+                    Message = $"Failed to add book: {ex.Message}",
+                    TraceId = httpCtx.TraceIdentifier,
+                },
+                statusCode: StatusCodes.Status500InternalServerError);
         }
     }
 

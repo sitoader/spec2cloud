@@ -1,5 +1,6 @@
 using System.ClientModel;
 using Azure.AI.OpenAI;
+using Azure.Identity;
 using BookTracker.Core.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -22,15 +23,28 @@ public class AzureOpenAiChatClient : IAiChatClient
 
         var endpoint = configuration["AzureOpenAI:Endpoint"]
             ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured.");
-        var apiKey = configuration["AzureOpenAI:ApiKey"]
-            ?? throw new InvalidOperationException("AzureOpenAI:ApiKey not configured.");
         var deploymentName = configuration["AzureOpenAI:DeploymentName"] ?? "gpt-4o";
+        var useEntraId = configuration.GetValue("AzureOpenAI:UseEntraId", true);
 
         var timeoutSeconds = configuration.GetValue("AzureOpenAI:TimeoutSeconds", 30);
         _requestTimeout = TimeSpan.FromSeconds(timeoutSeconds);
 
-        var credential = new ApiKeyCredential(apiKey);
-        var client = new AzureOpenAIClient(new Uri(endpoint), credential);
+        AzureOpenAIClient client;
+        if (useEntraId)
+        {
+            // Use Azure Entra ID (recommended for production)
+            var credential = new DefaultAzureCredential();
+            client = new AzureOpenAIClient(new Uri(endpoint), credential);
+        }
+        else
+        {
+            // Use API key (only if key auth is enabled)
+            var apiKey = configuration["AzureOpenAI:ApiKey"]
+                ?? throw new InvalidOperationException("AzureOpenAI:ApiKey not configured.");
+            var credential = new ApiKeyCredential(apiKey);
+            client = new AzureOpenAIClient(new Uri(endpoint), credential);
+        }
+        
         _chatClient = client.GetChatClient(deploymentName);
     }
 

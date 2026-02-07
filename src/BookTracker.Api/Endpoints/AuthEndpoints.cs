@@ -4,6 +4,7 @@ using BookTracker.Api.Models.Auth;
 using BookTracker.Core.Exceptions;
 using BookTracker.Core.Models;
 using BookTracker.Core.Services;
+using Microsoft.AspNetCore.Hosting;
 
 namespace BookTracker.Api.Endpoints;
 
@@ -66,7 +67,8 @@ public static class AuthEndpoints
             var result = await svc.RegisterUserAsync(
                 payload.Email, payload.Password, payload.DisplayName);
 
-            WriteSessionCookie(httpCtx.Response, result.Token, result.ExpiresAtUtc);
+            var isDevelopment = httpCtx.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+            WriteSessionCookie(httpCtx.Response, result.Token, result.ExpiresAtUtc, isDevelopment);
             return Results.Created("/api/auth/me", ToResponse(result));
         }
         catch (UserAlreadyExistsException ex)
@@ -100,7 +102,8 @@ public static class AuthEndpoints
             var result = await svc.AuthenticateUserAsync(
                 payload.Email, payload.Password, payload.RememberMe);
 
-            WriteSessionCookie(httpCtx.Response, result.Token, result.ExpiresAtUtc);
+            var isDevelopment = httpCtx.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+            WriteSessionCookie(httpCtx.Response, result.Token, result.ExpiresAtUtc, isDevelopment);
             return Results.Ok(ToResponse(result));
         }
         catch (Core.Exceptions.AuthenticationException)
@@ -127,7 +130,8 @@ public static class AuthEndpoints
 
     private static IResult LogoutHandler(HttpContext httpCtx)
     {
-        httpCtx.Response.Cookies.Delete(SessionCookieName, MakeCookieOptions());
+        var isDevelopment = httpCtx.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment();
+        httpCtx.Response.Cookies.Delete(SessionCookieName, MakeCookieOptions(isDevelopment));
         return Results.NoContent();
     }
 
@@ -155,18 +159,18 @@ public static class AuthEndpoints
     // ── Helpers ─────────────────────────────────────────────────
 
     private static void WriteSessionCookie(
-        HttpResponse response, string jwt, DateTime expiresUtc)
+        HttpResponse response, string jwt, DateTime expiresUtc, bool isDevelopment = false)
     {
-        var opts = MakeCookieOptions();
+        var opts = MakeCookieOptions(isDevelopment);
         opts.Expires = new DateTimeOffset(expiresUtc);
         response.Cookies.Append(SessionCookieName, jwt, opts);
     }
 
-    private static CookieOptions MakeCookieOptions() => new()
+    private static CookieOptions MakeCookieOptions(bool isDevelopment = false) => new()
     {
         HttpOnly = true,
-        Secure = true,
-        SameSite = SameSiteMode.Strict,
+        Secure = !isDevelopment, // Only require HTTPS in production
+        SameSite = isDevelopment ? SameSiteMode.Lax : SameSiteMode.Strict, // Lax for local dev
         Path = "/",
     };
 
