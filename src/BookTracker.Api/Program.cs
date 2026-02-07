@@ -1,10 +1,15 @@
 using System.Reflection;
 using System.Text;
 using Azure.Identity;
+using BookTracker.Api.Endpoints;
+using BookTracker.Core.Entities;
+using BookTracker.Core.Exceptions;
 using BookTracker.Core.Models;
+using BookTracker.Core.Services;
 using BookTracker.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -45,6 +50,33 @@ try
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         options.UseSqlServer(connectionString);
     });
+
+    // Configure ASP.NET Core Identity with ApplicationUser
+    builder.Services.AddIdentity<ApplicationUser, IdentityRole>(cfg =>
+    {
+        // Password strength rules
+        cfg.Password.RequiredLength = 8;
+        cfg.Password.RequireUppercase = true;
+        cfg.Password.RequireLowercase = true;
+        cfg.Password.RequireDigit = true;
+        cfg.Password.RequireNonAlphanumeric = false;
+
+        // Lockout behavior
+        cfg.Lockout.MaxFailedAccessAttempts = 5;
+        cfg.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        cfg.Lockout.AllowedForNewUsers = true;
+
+        // Email confirmation not required for v1
+        cfg.SignIn.RequireConfirmedEmail = false;
+
+        cfg.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+    // Register application services
+    builder.Services.AddSingleton<JwtTokenService>();
+    builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
     // Configure CORS
     var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
@@ -164,6 +196,9 @@ try
 
                 var statusCode = exception switch
                 {
+                    BookTracker.Core.Exceptions.UserAlreadyExistsException => StatusCodes.Status409Conflict,
+                    BookTracker.Core.Exceptions.AccountLockedException => 423,
+                    BookTracker.Core.Exceptions.AuthenticationException => StatusCodes.Status401Unauthorized,
                     ArgumentException => StatusCodes.Status400BadRequest,
                     UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
                     KeyNotFoundException => StatusCodes.Status404NotFound,
@@ -218,6 +253,9 @@ try
     // Map health checks with details
     app.MapHealthChecks("/health/detailed")
         .AllowAnonymous();
+
+    // Map authentication endpoints (register, login, logout, me)
+    app.MapAuthEndpoints();
 
     app.Run();
 
