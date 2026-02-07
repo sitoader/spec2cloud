@@ -134,6 +134,27 @@ export interface BookTrackerBooksResponse {
 }
 
 /* ------------------------------------------------------------------ */
+/*  User preferences types                                             */
+/* ------------------------------------------------------------------ */
+
+/** User reading preferences DTO (mirrors UserPreferencesDto). */
+export interface BookTrackerUserPreferences {
+  id: string;
+  preferredGenres?: string[];
+  preferredThemes?: string[];
+  favoriteAuthors?: string[];
+  createdDate: string;
+  updatedDate?: string;
+}
+
+/** Request payload for updating user preferences. */
+export interface BookTrackerUpdatePreferencesPayload {
+  preferredGenres?: string[];
+  preferredThemes?: string[];
+  favoriteAuthors?: string[];
+}
+
+/* ------------------------------------------------------------------ */
 /*  External book search types                                         */
 /* ------------------------------------------------------------------ */
 
