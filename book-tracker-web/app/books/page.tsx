@@ -14,6 +14,7 @@ import type { BookTrackerBook } from '@/types';
 import { bookTrackerGetBooks } from '@/lib/api/books';
 import { BookTrackerBookGrid } from '@/components/books/BookGrid';
 import { BookTrackerBookFilters } from '@/components/books/BookFilters';
+import { BookTrackerHeader } from '@/components/layout/Header';
 
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
@@ -78,24 +79,26 @@ export default function BookTrackerBooksListingPage(): React.JSX.Element {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      {/* Header section */}
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">
-            My Library
-          </h1>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            {publicationSet.length} {publicationSet.length === 1 ? 'book' : 'books'} in your collection
-          </p>
+    <>
+      <BookTrackerHeader />
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header section */}
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">
+              My Library
+            </h1>
+            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+              {publicationSet.length} {publicationSet.length === 1 ? 'book' : 'books'} in your collection
+            </p>
+          </div>
+          <Link
+            href="/books/add"
+            className="inline-flex items-center justify-center rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 dark:bg-zinc-200 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          >
+            Add New Book
+          </Link>
         </div>
-        <Link
-          href="/books/add"
-          className="inline-flex items-center justify-center rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 dark:bg-zinc-200 dark:text-zinc-900 dark:hover:bg-zinc-300"
-        >
-          Add New Book
-        </Link>
-      </div>
 
       {/* Error banner */}
       {loadError && (
@@ -140,6 +143,7 @@ export default function BookTrackerBooksListingPage(): React.JSX.Element {
           }
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }

@@ -87,7 +87,7 @@ export default function BookTrackerSignInPanel(): React.JSX.Element {
           password: parsed.data.password,
           rememberMe: parsed.data.rememberMe,
         });
-        router.push('/library');
+        router.push('/books');
       } catch (err: unknown) {
         setBanner(bookTrackerReadableError(err));
       } finally {

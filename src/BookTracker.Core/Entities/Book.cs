@@ -22,6 +22,6 @@ public class Book
     public string? Source { get; set; }
     
     // Navigation properties
-    public ApplicationUser User { get; set; } = null!;
+    public ApplicationUser? User { get; set; }
     public Rating? Rating { get; set; }
 }

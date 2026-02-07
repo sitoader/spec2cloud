@@ -14,7 +14,7 @@ import {
   bookTrackerAddBookFormSchema,
   type BookTrackerAddBookFormData,
 } from '@/lib/validations/books';
-import { bookTrackerAddBook } from '@/lib/api/books';
+import { bookTrackerAddBook, bookTrackerReadableError } from '@/lib/api/books';
 
 /* ------------------------------------------------------------------ */
 /*  Form state blueprint                                               */
@@ -107,7 +107,7 @@ export function BookTrackerAddBookForm(): React.JSX.Element {
         const createdBook = await bookTrackerAddBook(payload);
         router.push(`/books/${createdBook.id}`);
       } catch (err: unknown) {
-        setSubmitError(err instanceof Error ? err.message : 'Failed to add book');
+        setSubmitError(bookTrackerReadableError(err));
       } finally {
         setIsSubmitting(false);
       }

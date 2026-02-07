@@ -12,6 +12,7 @@ import type {
   BookTrackerUpdateBookPayload,
   BookTrackerUpdateBookStatusPayload,
   BookTrackerBookStatus,
+  BookTrackerErrorEnvelope,
 } from '@/types';
 
 /**
@@ -111,4 +112,40 @@ export async function bookTrackerDeleteBook(id: string): Promise<void> {
     }
     throw error;
   }
+}
+
+/**
+ * Map of HTTP status codes to user-friendly error messages for book operations.
+ */
+const BOOK_STATUS_MESSAGES: Map<number, string> = new Map([
+  [0, 'Unable to reach the server. Check your connection and try again.'],
+  [400, 'Invalid book information. Please check your input and try again.'],
+  [401, 'You need to be logged in to perform this action.'],
+  [403, 'You do not have permission to access this book.'],
+  [404, 'Book not found.'],
+  [409, 'A book with this title already exists in your library.'],
+]);
+
+/**
+ * Convert a caught error into a user-friendly message for book operations.
+ * @param caught - The error object
+ * @returns Human-readable error message
+ */
+export function bookTrackerReadableError(caught: unknown): string {
+  if (caught instanceof ApiError) {
+    const envelope = caught.response as BookTrackerErrorEnvelope | undefined;
+    if (envelope?.message) {
+      return envelope.message;
+    }
+    return (
+      BOOK_STATUS_MESSAGES.get(caught.status) ??
+      'Something unexpected happened. Please try again.'
+    );
+  }
+
+  if (caught instanceof Error) {
+    return caught.message;
+  }
+
+  return 'An unknown problem occurred.';
 }

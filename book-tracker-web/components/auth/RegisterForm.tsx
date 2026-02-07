@@ -121,7 +121,7 @@ export default function BookTrackerRegistrationPanel(): React.JSX.Element {
           password: parsed.data.password,
           displayName: parsed.data.displayName || undefined,
         });
-        router.push('/library');
+        router.push('/books');
       } catch (err: unknown) {
         setBanner(bookTrackerReadableError(err));
       } finally {

@@ -66,9 +66,11 @@ public class BookService : IBookService
             CoverImageUrl = coverImageUrl,
             Description = description,
             Genres = genres != null ? JsonSerializer.Serialize(genres) : null,
-            PublicationDate = publicationDate,
+            PublicationDate = publicationDate.HasValue 
+                ? DateTime.SpecifyKind(publicationDate.Value, DateTimeKind.Utc)
+                : null,
             Status = status,
-            AddedDate = DateTime.UtcNow,
+            AddedDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
             Source = source,
         };
 

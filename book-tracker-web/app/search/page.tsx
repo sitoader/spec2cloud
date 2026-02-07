@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { BookTrackerBookStatus } from '@/types';
 import type { BookTrackerExternalBook } from '@/types';
 import { bookTrackerSearchBooks, bookTrackerSearchReadableError } from '@/lib/api/search';
-import { bookTrackerAddBook } from '@/lib/api/books';
+import { bookTrackerAddBook, bookTrackerReadableError } from '@/lib/api/books';
 import BookTrackerSearchBar from '@/components/search/BookTrackerSearchBar';
 import BookTrackerSearchResults from '@/components/search/BookTrackerSearchResults';
 import BookTrackerBookDetailModal from '@/components/search/BookTrackerBookDetailModal';
@@ -87,9 +87,7 @@ export default function BookTrackerSearchPage(): React.JSX.Element {
         });
         setSuccessBanner(`"${book.title}" added to your library!`);
       } catch (err: unknown) {
-        setErrorBanner(
-          err instanceof Error ? err.message : 'Could not add book to library.',
-        );
+        setErrorBanner(bookTrackerReadableError(err));
       }
     },
     [],

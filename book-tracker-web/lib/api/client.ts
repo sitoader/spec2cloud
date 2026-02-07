@@ -52,15 +52,17 @@ export async function apiClient<T>(
     const response = await fetch(url, {
       ...options,
       headers,
+      credentials: 'include', // Include cookies in requests
     });
     
     // Handle non-2xx responses
     if (!response.ok) {
       let errorData: unknown;
+      const text = await response.text();
       try {
-        errorData = await response.json();
+        errorData = JSON.parse(text);
       } catch {
-        errorData = await response.text();
+        errorData = text;
       }
       
       throw new ApiError(
@@ -71,8 +73,11 @@ export async function apiClient<T>(
     }
     
     // Parse JSON response
-    const data = await response.json();
-    return data as T;
+    const text = await response.text();
+    if (!text) {
+      return undefined as T;
+    }
+    return JSON.parse(text) as T;
   } catch (error) {
     // Re-throw ApiError as-is
     if (error instanceof ApiError) {

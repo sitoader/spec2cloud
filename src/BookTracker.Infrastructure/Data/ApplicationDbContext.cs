@@ -97,7 +97,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         ratingEntity.Property(item => item.RatedDate).IsRequired();
         
         // Check constraint for score range (1-5)
-        ratingEntity.ToTable(tbl => tbl.HasCheckConstraint("CK_Ratings_Score", "[Score] >= 1 AND [Score] <= 5"));
+        ratingEntity.ToTable(tbl => tbl.HasCheckConstraint("CK_Ratings_Score", "\"Score\" >= 1 AND \"Score\" <= 5"));
         
         // Unique index on BookId
         ratingEntity.HasIndex(item => item.BookId).IsUnique().HasDatabaseName("IX_Ratings_BookId");
