@@ -57,3 +57,78 @@ export interface BookTrackerErrorEnvelope {
   errors?: Record<string, string[]>;
   traceId?: string;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Book types                                                         */
+/* ------------------------------------------------------------------ */
+
+/** Book reading status. */
+export enum BookTrackerBookStatus {
+  ToRead = 0,
+  Reading = 1,
+  Completed = 2,
+}
+
+/** Book rating data. */
+export interface BookTrackerRating {
+  id: string;
+  score: number;
+  notes?: string;
+  ratedDate: string;
+  updatedDate?: string;
+}
+
+/** Book DTO from the API. */
+export interface BookTrackerBook {
+  id: string;
+  title: string;
+  author: string;
+  isbn?: string;
+  coverImageUrl?: string;
+  description?: string;
+  genres?: string[];
+  publicationDate?: string;
+  status: BookTrackerBookStatus;
+  addedDate: string;
+  source?: string;
+  rating?: BookTrackerRating;
+}
+
+/** Request payload for adding a new book. */
+export interface BookTrackerAddBookPayload {
+  title: string;
+  author: string;
+  isbn?: string;
+  coverImageUrl?: string;
+  description?: string;
+  genres?: string[];
+  publicationDate?: string;
+  status: BookTrackerBookStatus;
+  source?: string;
+}
+
+/** Request payload for updating a book. */
+export interface BookTrackerUpdateBookPayload {
+  title?: string;
+  author?: string;
+  isbn?: string;
+  coverImageUrl?: string;
+  description?: string;
+  genres?: string[];
+  publicationDate?: string;
+  status?: BookTrackerBookStatus;
+  source?: string;
+}
+
+/** Request payload for updating book status. */
+export interface BookTrackerUpdateBookStatusPayload {
+  status: BookTrackerBookStatus;
+}
+
+/** Paginated response for books listing. */
+export interface BookTrackerBooksResponse {
+  items: BookTrackerBook[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+}
