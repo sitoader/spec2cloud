@@ -28,18 +28,22 @@ public static class SearchEndpoints
 
     // ── Handlers ────────────────────────────────────────────────
 
+    private const int MinQueryLength = 3;
+    private const int MinMaxResults = 1;
+    private const int MaxMaxResults = 20;
+
     private static async Task<IResult> SearchBooksHandler(
         IBookSearchService searchService,
         string? query,
-        int maxResults = 20)
+        int maxResults = MaxMaxResults)
     {
-        if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < 3)
+        if (string.IsNullOrWhiteSpace(query) || query.Trim().Length < MinQueryLength)
         {
             return Results.BadRequest(new { message = "Query must be at least 3 characters long." });
         }
 
-        if (maxResults < 1) maxResults = 1;
-        if (maxResults > 20) maxResults = 20;
+        if (maxResults < MinMaxResults) maxResults = MinMaxResults;
+        if (maxResults > MaxMaxResults) maxResults = MaxMaxResults;
 
         var results = await searchService.SearchBooksAsync(query.Trim(), maxResults);
 

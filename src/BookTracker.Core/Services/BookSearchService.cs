@@ -19,6 +19,7 @@ public class BookSearchService : IBookSearchService
 
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(24);
     private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(5);
+    private const int MaxGenresPerBook = 10;
 
     public BookSearchService(
         IHttpClientFactory httpClientFactory,
@@ -260,7 +261,7 @@ public class BookSearchService : IBookSearchService
                 genres = subjects.EnumerateArray()
                     .Select(s => s.GetString()!)
                     .Where(s => s is not null)
-                    .Take(10)
+                    .Take(MaxGenresPerBook)
                     .ToArray();
                 if (genres.Length == 0) genres = null;
             }
