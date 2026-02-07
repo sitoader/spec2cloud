@@ -26,12 +26,17 @@ export const BOOK_TRACKER_AUTH_ROUTES = {
  * Map of HTTP status codes → reader-friendly messages surfaced in the
  * BookTracker UI when a specific status is returned by the auth API.
  */
+/**
+ * Status 0 is not a real HTTP code — `apiClient` assigns it to errors
+ * that never received a server response (network failures, CORS blocks,
+ * or JSON-parse errors on empty 204 bodies).
+ */
 const BOOK_TRACKER_STATUS_MESSAGES: Map<number, string> = new Map([
+  [0, 'Unable to reach the BookTracker server. Check your connection and try again.'],
   [400, 'Some of the information you entered is not valid. Please double-check and try again.'],
   [401, 'The email or password you entered does not match our records.'],
   [409, 'An account with that email already exists in BookTracker.'],
   [423, 'This account has been temporarily locked. Please try again later.'],
-  [0, 'Unable to reach the BookTracker server. Check your connection and try again.'],
 ]);
 
 /**
@@ -67,14 +72,16 @@ export async function bookTrackerAuthenticate(
 /**
  * Invalidate the current BookTracker session on the server.
  *
- * The backend returns 204 (no body), so we call `fetch` directly
- * rather than going through `apiClient` which always parses JSON.
+ * The backend returns 204 (no body). Because `apiClient` unconditionally
+ * calls `response.json()`, the empty body causes a SyntaxError that gets
+ * wrapped as an `ApiError` with `status === 0` (the network-error bucket).
+ * We swallow that specific case here.
  */
 export async function bookTrackerEndSession(): Promise<void> {
   await apiClient<undefined>(BOOK_TRACKER_AUTH_ROUTES.logout, {
     method: 'POST',
   }).catch((err: unknown) => {
-    // 204 triggers a JSON-parse failure inside apiClient — that is fine.
+    // status 0 = apiClient's wrapper for non-HTTP errors (e.g. JSON parse on 204).
     if (err instanceof ApiError && err.status === 0) {
       return;
     }
