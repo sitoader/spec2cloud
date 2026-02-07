@@ -295,9 +295,9 @@ public static class BookEndpoints
             {
                 genres = JsonSerializer.Deserialize<string[]>(book.Genres);
             }
-            catch
+            catch (JsonException)
             {
-                // If genres is not valid JSON, treat it as null
+                // If genres is not valid JSON array, treat as null
             }
         }
 

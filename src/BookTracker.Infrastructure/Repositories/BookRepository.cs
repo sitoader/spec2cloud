@@ -89,9 +89,10 @@ public class BookRepository : Core.Repositories.IBookRepository
     /// <inheritdoc />
     public async Task<bool> ExistsAsync(string userId, string title)
     {
+        var normalizedTitle = title.ToUpperInvariant();
         return await _db.Books
             .AsNoTracking()
             .AnyAsync(b => b.UserId == userId &&
-                           b.Title.ToLower() == title.ToLower());
+                           b.Title.ToUpperInvariant() == normalizedTitle);
     }
 }
