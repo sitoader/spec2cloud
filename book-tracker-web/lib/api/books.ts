@@ -105,7 +105,8 @@ export async function bookTrackerDeleteBook(id: string): Promise<void> {
       method: 'DELETE',
     });
   } catch (error) {
-    if (error instanceof ApiError && error.status === 204) {
+    // API returns 204 No Content which causes JSON parse error (status === 0)
+    if (error instanceof ApiError && error.status === 0) {
       return;
     }
     throw error;
