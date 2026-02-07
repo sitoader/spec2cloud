@@ -61,7 +61,7 @@ try
         cfg.Password.RequireDigit = true;
         cfg.Password.RequireNonAlphanumeric = false;
 
-        // Lockout behaviour
+        // Lockout behavior
         cfg.Lockout.MaxFailedAccessAttempts = 5;
         cfg.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
         cfg.Lockout.AllowedForNewUsers = true;

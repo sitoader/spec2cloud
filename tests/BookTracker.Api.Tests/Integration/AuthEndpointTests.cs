@@ -151,15 +151,11 @@ public class AuthEndpointTests : IClassFixture<AuthEndpointTests.BookTrackerTest
                 new { email, password = "BadPassword1!" });
         }
 
-        // This attempt should reflect the lockout
+        // This attempt hits the pre-check in AuthenticationService.IsLockedOutAsync → 423
         var lockedResp = await client.PostAsJsonAsync("/api/auth/login",
             new { email, password = StrongPassword });
 
-        // Could be 423 (caught as locked) or 401 (locked is detected before password check)
-        Assert.True(
-            lockedResp.StatusCode == (HttpStatusCode)423 ||
-            lockedResp.StatusCode == HttpStatusCode.Unauthorized,
-            $"Expected 423 or 401 but got {(int)lockedResp.StatusCode}");
+        Assert.Equal((HttpStatusCode)423, lockedResp.StatusCode);
     }
 
     // ── Logout ──────────────────────────────────────────────────
