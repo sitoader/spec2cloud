@@ -12,13 +12,13 @@ export default function Home(): React.JSX.Element {
             </h1>
             <div className="flex gap-4">
               <Link
-                href="/auth/login"
+                href="/login"
                 className="rounded-md px-4 py-2 font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800"
               >
                 Log In
               </Link>
               <Link
-                href="/auth/signup"
+                href="/register"
                 className="rounded-md bg-zinc-900 px-4 py-2 font-medium text-white transition-colors hover:bg-zinc-800 dark:bg-zinc-700 dark:hover:bg-zinc-600"
               >
                 Sign Up
@@ -76,7 +76,7 @@ export default function Home(): React.JSX.Element {
           {/* CTA */}
           <div className="pt-8">
             <Link
-              href="/auth/signup"
+              href="/register"
               className="inline-block rounded-lg bg-zinc-900 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:scale-105 hover:bg-zinc-800 dark:bg-zinc-700 dark:hover:bg-zinc-600"
             >
               Get Started Free

@@ -16,6 +16,7 @@ const config: Config = {
   },
   collectCoverageFrom: [
     'lib/**/*.{js,jsx,ts,tsx}',
+    'components/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/.next/**',
