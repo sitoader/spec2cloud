@@ -195,7 +195,7 @@ export function BookTrackerBookDetail({
                 <div className="flex flex-wrap gap-2">
                   {publication.genres.map((genre, idx) => (
                     <span
-                      key={idx}
+                      key={`${genre}-${idx}`}
                       className="rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                     >
                       {genre}

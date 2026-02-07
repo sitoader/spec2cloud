@@ -36,11 +36,11 @@ const buildSymbolGlyph = (headline: string): string => {
   const sanitized = headline.trim();
   if (sanitized.length === 0) return '?';
   
-  const charCode = sanitized.charCodeAt(0);
-  const rangeA = charCode > 64 && charCode < 91;
-  const rangeB = charCode > 96 && charCode < 123;
+  // Check if first character is a letter (A-Z or a-z)
+  const firstChar = sanitized[0];
+  const isLetter = /^[a-zA-Z]$/.test(firstChar);
   
-  return rangeA || rangeB ? sanitized[0].toUpperCase() : '📖';
+  return isLetter ? firstChar.toUpperCase() : '📖';
 };
 
 const buildSynopsisSnippet = (fullDescription: string | undefined, charCap: number): string => {
@@ -129,7 +129,7 @@ export function BookTrackerBookCard({
             <div className="flex flex-wrap gap-1.5 pt-1">
               {pipeline.categoryTags.map((tag, idx) => (
                 <span
-                  key={idx}
+                  key={`${tag}-${idx}`}
                   className="rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
                 >
                   {tag}

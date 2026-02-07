@@ -23,6 +23,8 @@ function deriveStatusLabel(code: BookTrackerBookStatus): string {
   if (code === 0) return 'To Read';
   if (code === 1) return 'Reading';
   if (code === 2) return 'Completed';
+  // Should never reach here with typed enum, but handle gracefully
+  console.warn(`BookTrackerStatusBadge: unexpected status code ${code}`);
   return 'Unknown';
 }
 

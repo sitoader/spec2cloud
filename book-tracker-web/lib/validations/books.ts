@@ -57,6 +57,10 @@ const synopsisGuard = z.string().refine(
   { message: 'Description cannot exceed 5000 characters' }
 );
 
+/**
+ * Free-form genre tags - no additional validation needed as user
+ * can specify any genre names appropriate to their books.
+ */
 const categoryTagsGuard = z.string();
 
 const releaseDateGuard = z.string().refine(
