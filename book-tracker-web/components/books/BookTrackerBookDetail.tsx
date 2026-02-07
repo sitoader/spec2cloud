@@ -107,7 +107,7 @@ export default function BookTrackerBookDetail({
             {book.rating && (
               <span className="text-sm text-amber-500" aria-label={`Rating: ${book.rating.score} out of 5`}>
                 {Array.from({ length: 5 }, (_, i) => (
-                  <span key={i}>{i < book.rating!.score ? '★' : '☆'}</span>
+                  <span key={i}>{i < (book.rating?.score ?? 0) ? '★' : '☆'}</span>
                 ))}
               </span>
             )}

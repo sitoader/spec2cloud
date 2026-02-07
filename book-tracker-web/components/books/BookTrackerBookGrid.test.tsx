@@ -6,7 +6,7 @@ jest.mock('next/image', () => ({
   __esModule: true,
   default: (props: Record<string, unknown>): React.JSX.Element => {
     const { fill: _fill, unoptimized: _unopt, ...rest } = props;
-    // eslint-disable-next-line @next/next/no-img-element, @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text, @typescript-eslint/no-explicit-any
     return <img {...(rest as any)} />;
   },
 }));
