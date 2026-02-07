@@ -80,7 +80,11 @@ try
     builder.Services.AddSingleton<JwtTokenService>();
     builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
     builder.Services.AddScoped<IBookRepository, BookRepository>();
+    builder.Services.AddScoped<IRatingRepository, RatingRepository>();
+    builder.Services.AddScoped<IPreferencesRepository, PreferencesRepository>();
     builder.Services.AddScoped<IBookService, BookService>();
+    builder.Services.AddScoped<IRatingService, RatingService>();
+    builder.Services.AddScoped<IPreferencesService, PreferencesService>();
     builder.Services.AddScoped<IBookSearchService, BookSearchService>();
     builder.Services.AddMemoryCache();
 
@@ -275,6 +279,12 @@ try
 
     // Map book library endpoints
     app.MapBookEndpoints();
+
+    // Map rating endpoints
+    app.MapRatingEndpoints();
+
+    // Map preferences endpoints
+    app.MapPreferencesEndpoints();
 
     // Map book search endpoints
     app.MapSearchEndpoints();
