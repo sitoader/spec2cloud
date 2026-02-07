@@ -170,3 +170,23 @@ export interface BookTrackerExternalBook {
   publicationYear?: number;
   source: string;
 }
+
+/* ------------------------------------------------------------------ */
+/*  AI recommendation types                                            */
+/* ------------------------------------------------------------------ */
+
+/** A single AI-generated book recommendation (mirrors BookRecommendationDto). */
+export interface BookTrackerBookRecommendation {
+  title: string;
+  author: string;
+  genre?: string;
+  reason: string;
+  confidenceScore: number;
+}
+
+/** Response payload from POST /api/recommendations/generate. */
+export interface BookTrackerRecommendationsResponse {
+  recommendations: BookTrackerBookRecommendation[];
+  generatedAt: string;
+  booksAnalyzed: number;
+}
