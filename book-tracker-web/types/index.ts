@@ -132,3 +132,20 @@ export interface BookTrackerBooksResponse {
   page: number;
   pageSize: number;
 }
+
+/* ------------------------------------------------------------------ */
+/*  External book search types                                         */
+/* ------------------------------------------------------------------ */
+
+/** Book result from an external search API (mirrors ExternalBookDto). */
+export interface BookTrackerExternalBook {
+  externalId?: string;
+  title: string;
+  author: string;
+  isbn?: string;
+  coverImageUrl?: string;
+  description?: string;
+  genres?: string[];
+  publicationYear?: number;
+  source: string;
+}
