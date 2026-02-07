@@ -25,8 +25,7 @@ export const BOOK_TRACKER_AUTH_ROUTES = {
 /**
  * Map of HTTP status codes → reader-friendly messages surfaced in the
  * BookTracker UI when a specific status is returned by the auth API.
- */
-/**
+ *
  * Status 0 is not a real HTTP code — `apiClient` assigns it to errors
  * that never received a server response (network failures, CORS blocks,
  * or JSON-parse errors on empty 204 bodies).
