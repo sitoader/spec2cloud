@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text;
 using Azure.Identity;
+using BookTracker.Api;
 using BookTracker.Api.Endpoints;
 using BookTracker.Core.Entities;
 using BookTracker.Core.Exceptions;
@@ -86,6 +87,8 @@ try
     builder.Services.AddScoped<IRatingService, RatingService>();
     builder.Services.AddScoped<IPreferencesService, PreferencesService>();
     builder.Services.AddScoped<IBookSearchService, BookSearchService>();
+    builder.Services.AddScoped<IAiChatClient, AzureOpenAiChatClient>();
+    builder.Services.AddScoped<IRecommendationService, RecommendationService>();
     builder.Services.AddMemoryCache();
 
     // Configure CORS
@@ -288,6 +291,9 @@ try
 
     // Map book search endpoints
     app.MapSearchEndpoints();
+
+    // Map recommendation endpoints
+    app.MapRecommendationEndpoints();
 
     app.Run();
 
