@@ -81,6 +81,8 @@ try
     builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
     builder.Services.AddScoped<IBookRepository, BookRepository>();
     builder.Services.AddScoped<IBookService, BookService>();
+    builder.Services.AddScoped<IBookSearchService, BookSearchService>();
+    builder.Services.AddMemoryCache();
 
     // Configure CORS
     var allowedOrigins = builder.Configuration.GetSection("CorsSettings:AllowedOrigins").Get<string[]>()
@@ -177,7 +179,14 @@ try
     });
 
     // Configure HttpClient for external APIs
-    builder.Services.AddHttpClient();
+    builder.Services.AddHttpClient("GoogleBooks", client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(5);
+    });
+    builder.Services.AddHttpClient("OpenLibrary", client =>
+    {
+        client.Timeout = TimeSpan.FromSeconds(5);
+    });
 
     // Add health checks
     builder.Services.AddHealthChecks()
@@ -266,6 +275,9 @@ try
 
     // Map book library endpoints
     app.MapBookEndpoints();
+
+    // Map book search endpoints
+    app.MapSearchEndpoints();
 
     app.Run();
 
