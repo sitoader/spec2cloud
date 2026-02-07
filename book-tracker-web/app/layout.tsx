@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { BookTrackerIdentityGate } from '@/lib/contexts/AuthContext';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <BookTrackerIdentityGate>
+          {children}
+        </BookTrackerIdentityGate>
       </body>
     </html>
   );
