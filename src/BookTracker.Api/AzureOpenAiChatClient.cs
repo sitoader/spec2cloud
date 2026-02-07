@@ -14,7 +14,7 @@ public class AzureOpenAiChatClient : IAiChatClient
 {
     private readonly ChatClient _chatClient;
     private readonly ILogger<AzureOpenAiChatClient> _logger;
-    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(10);
+    private readonly TimeSpan _requestTimeout;
 
     public AzureOpenAiChatClient(IConfiguration configuration, ILogger<AzureOpenAiChatClient> logger)
     {
@@ -25,6 +25,9 @@ public class AzureOpenAiChatClient : IAiChatClient
         var apiKey = configuration["AzureOpenAI:ApiKey"]
             ?? throw new InvalidOperationException("AzureOpenAI:ApiKey not configured.");
         var deploymentName = configuration["AzureOpenAI:DeploymentName"] ?? "gpt-4o";
+
+        var timeoutSeconds = configuration.GetValue("AzureOpenAI:TimeoutSeconds", 30);
+        _requestTimeout = TimeSpan.FromSeconds(timeoutSeconds);
 
         var credential = new ApiKeyCredential(apiKey);
         var client = new AzureOpenAIClient(new Uri(endpoint), credential);
@@ -46,7 +49,7 @@ public class AzureOpenAiChatClient : IAiChatClient
             MaxOutputTokenCount = maxTokens,
         };
 
-        using var cts = new CancellationTokenSource(RequestTimeout);
+        using var cts = new CancellationTokenSource(_requestTimeout);
 
         try
         {
@@ -70,7 +73,7 @@ public class AzureOpenAiChatClient : IAiChatClient
         }
         catch (OperationCanceledException)
         {
-            _logger.LogWarning("Azure OpenAI request timed out after {TimeoutSeconds} seconds", RequestTimeout.TotalSeconds);
+            _logger.LogWarning("Azure OpenAI request timed out after {TimeoutSeconds} seconds", _requestTimeout.TotalSeconds);
             throw;
         }
         catch (ClientResultException ex)
