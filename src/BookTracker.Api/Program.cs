@@ -51,7 +51,7 @@ try
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
     {
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-        options.UseSqlServer(connectionString);
+        options.UseNpgsql(connectionString);
     });
 
     // Configure ASP.NET Core Identity with ApplicationUser
