@@ -59,46 +59,42 @@ export interface BookTrackerErrorEnvelope {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Book domain                                                        */
+/*  Book types                                                         */
 /* ------------------------------------------------------------------ */
 
-/** Reading status enum — mirrors BookStatus in the backend. */
-export type BookTrackerBookStatus = 'ToRead' | 'Reading' | 'Completed';
+/** Book reading status. */
+export enum BookTrackerBookStatus {
+  ToRead = 0,
+  Reading = 1,
+  Completed = 2,
+}
 
-/** Rating data attached to a book. */
+/** Book rating data. */
 export interface BookTrackerRating {
   id: string;
   score: number;
-  notes: string | null;
+  notes?: string;
   ratedDate: string;
-  updatedDate: string | null;
+  updatedDate?: string;
 }
 
-/** Full book record returned by GET /api/books and GET /api/books/:id. */
+/** Book DTO from the API. */
 export interface BookTrackerBook {
   id: string;
   title: string;
   author: string;
-  isbn: string | null;
-  coverImageUrl: string | null;
-  description: string | null;
-  genres: string[] | null;
-  publicationDate: string | null;
+  isbn?: string;
+  coverImageUrl?: string;
+  description?: string;
+  genres?: string[];
+  publicationDate?: string;
   status: BookTrackerBookStatus;
   addedDate: string;
-  source: string | null;
-  rating: BookTrackerRating | null;
+  source?: string;
+  rating?: BookTrackerRating;
 }
 
-/** Paginated response envelope from GET /api/books. */
-export interface BookTrackerBookListResponse {
-  items: BookTrackerBook[];
-  totalCount: number;
-  page: number;
-  pageSize: number;
-}
-
-/** Wire payload for POST /api/books. */
+/** Request payload for adding a new book. */
 export interface BookTrackerAddBookPayload {
   title: string;
   author: string;
@@ -111,20 +107,28 @@ export interface BookTrackerAddBookPayload {
   source?: string;
 }
 
-/** Wire payload for PUT /api/books/:id. */
+/** Request payload for updating a book. */
 export interface BookTrackerUpdateBookPayload {
   title?: string;
   author?: string;
-  status?: BookTrackerBookStatus;
   isbn?: string;
   coverImageUrl?: string;
   description?: string;
   genres?: string[];
   publicationDate?: string;
+  status?: BookTrackerBookStatus;
   source?: string;
 }
 
-/** Wire payload for PATCH /api/books/:id/status. */
-export interface BookTrackerUpdateStatusPayload {
+/** Request payload for updating book status. */
+export interface BookTrackerUpdateBookStatusPayload {
   status: BookTrackerBookStatus;
+}
+
+/** Paginated response for books listing. */
+export interface BookTrackerBooksResponse {
+  items: BookTrackerBook[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
 }

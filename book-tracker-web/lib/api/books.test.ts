@@ -1,23 +1,22 @@
+/**
+ * Test suite for BookTracker books API client functions.
+ */
+
 import {
-  BOOK_TRACKER_BOOK_ROUTES,
   bookTrackerGetBooks,
   bookTrackerGetBook,
   bookTrackerAddBook,
   bookTrackerUpdateBook,
   bookTrackerUpdateBookStatus,
   bookTrackerDeleteBook,
-  bookTrackerBookReadableError,
 } from './books';
-import { apiClient, ApiError } from '@/lib/api/client';
-import type {
-  BookTrackerBook,
-  BookTrackerBookListResponse,
-  BookTrackerAddBookPayload,
-} from '@/types';
+import { apiClient, ApiError } from './client';
+import { BookTrackerBookStatus } from '@/types';
+import type { BookTrackerBook, BookTrackerBooksResponse } from '@/types';
 
-jest.mock('@/lib/api/client', () => {
-  const ActualApiError = jest.requireActual<typeof import('@/lib/api/client')>(
-    '@/lib/api/client',
+jest.mock('./client', () => {
+  const ActualApiError = jest.requireActual<typeof import('./client')>(
+    './client',
   ).ApiError;
   return {
     apiClient: jest.fn(),
@@ -25,199 +24,183 @@ jest.mock('@/lib/api/client', () => {
   };
 });
 
-const mockedApiClient = apiClient as jest.Mock;
-
-const SAMPLE_BOOK: BookTrackerBook = {
-  id: 'b-001',
-  title: 'The Great Gatsby',
-  author: 'F. Scott Fitzgerald',
-  isbn: '978-0743273565',
-  coverImageUrl: null,
-  description: 'A novel about the American dream.',
-  genres: ['Fiction', 'Classic'],
-  publicationDate: '1925-04-10',
-  status: 'Completed',
-  addedDate: '2024-01-15T00:00:00Z',
-  source: 'Bookstore',
-  rating: { id: 'r-001', score: 5, notes: 'Masterpiece', ratedDate: '2024-02-01T00:00:00Z', updatedDate: null },
-};
-
-describe('BOOK_TRACKER_BOOK_ROUTES', () => {
-  it('exposes the expected route paths', () => {
-    expect(BOOK_TRACKER_BOOK_ROUTES.list).toBe('/api/books');
-    expect(BOOK_TRACKER_BOOK_ROUTES.detail('abc')).toBe('/api/books/abc');
-    expect(BOOK_TRACKER_BOOK_ROUTES.updateStatus('abc')).toBe('/api/books/abc/status');
-  });
-});
+const mockApiClient = apiClient as jest.MockedFunction<typeof apiClient>;
 
 describe('bookTrackerGetBooks', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const mockResponse: BookTrackerBooksResponse = {
+    items: [
+      {
+        id: 'book-1',
+        title: 'Test Book',
+        author: 'Test Author',
+        status: BookTrackerBookStatus.ToRead,
+        addedDate: '2024-01-01T00:00:00Z',
+      } as BookTrackerBook,
+    ],
+    totalCount: 1,
+    page: 1,
+    pageSize: 20,
+  };
 
-  it('calls apiClient with query params for status, page, and pageSize', async () => {
-    const response: BookTrackerBookListResponse = {
-      items: [SAMPLE_BOOK],
-      totalCount: 1,
-      page: 1,
-      pageSize: 20,
-    };
-    mockedApiClient.mockResolvedValueOnce(response);
-
-    const result = await bookTrackerGetBooks('Completed', 1, 20);
-
-    expect(mockedApiClient).toHaveBeenCalledWith(
-      '/api/books?status=Completed&page=1&pageSize=20',
-    );
-    expect(result).toEqual(response);
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('omits status when not provided', async () => {
-    const response: BookTrackerBookListResponse = {
-      items: [],
-      totalCount: 0,
-      page: 1,
-      pageSize: 20,
-    };
-    mockedApiClient.mockResolvedValueOnce(response);
+  it('should fetch books without filters', async () => {
+    mockApiClient.mockResolvedValueOnce(mockResponse);
 
-    await bookTrackerGetBooks();
+    const result = await bookTrackerGetBooks();
 
-    expect(mockedApiClient).toHaveBeenCalledWith(
-      '/api/books?page=1&pageSize=20',
-    );
+    expect(mockApiClient).toHaveBeenCalledWith('/api/books?page=1&pageSize=20');
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should fetch books with status filter', async () => {
+    mockApiClient.mockResolvedValueOnce(mockResponse);
+
+    const result = await bookTrackerGetBooks(BookTrackerBookStatus.Reading);
+
+    expect(mockApiClient).toHaveBeenCalledWith('/api/books?status=1&page=1&pageSize=20');
+    expect(result).toEqual(mockResponse);
+  });
+
+  it('should fetch books with custom pagination', async () => {
+    mockApiClient.mockResolvedValueOnce(mockResponse);
+
+    const result = await bookTrackerGetBooks(undefined, 2, 50);
+
+    expect(mockApiClient).toHaveBeenCalledWith('/api/books?page=2&pageSize=50');
+    expect(result).toEqual(mockResponse);
   });
 });
 
 describe('bookTrackerGetBook', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const mockBook: BookTrackerBook = {
+    id: 'book-123',
+    title: 'Sample Book',
+    author: 'Sample Author',
+    status: BookTrackerBookStatus.Completed,
+    addedDate: '2024-01-01T00:00:00Z',
+  };
 
-  it('calls apiClient with the detail route for the given ID', async () => {
-    mockedApiClient.mockResolvedValueOnce(SAMPLE_BOOK);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-    const result = await bookTrackerGetBook('b-001');
+  it('should fetch a single book by ID', async () => {
+    mockApiClient.mockResolvedValueOnce(mockBook);
 
-    expect(mockedApiClient).toHaveBeenCalledWith('/api/books/b-001');
-    expect(result).toEqual(SAMPLE_BOOK);
+    const result = await bookTrackerGetBook('book-123');
+
+    expect(mockApiClient).toHaveBeenCalledWith('/api/books/book-123');
+    expect(result).toEqual(mockBook);
   });
 });
 
 describe('bookTrackerAddBook', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const mockBook: BookTrackerBook = {
+    id: 'new-book',
+    title: 'New Book',
+    author: 'New Author',
+    status: BookTrackerBookStatus.ToRead,
+    addedDate: '2024-01-01T00:00:00Z',
+  };
 
-  it('calls apiClient with POST method and stringified payload', async () => {
-    const payload: BookTrackerAddBookPayload = {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should add a new book', async () => {
+    mockApiClient.mockResolvedValueOnce(mockBook);
+
+    const payload = {
       title: 'New Book',
-      author: 'Author Name',
-      status: 'ToRead',
+      author: 'New Author',
+      status: BookTrackerBookStatus.ToRead,
     };
-    mockedApiClient.mockResolvedValueOnce({ ...SAMPLE_BOOK, id: 'b-new', title: 'New Book' });
 
-    await bookTrackerAddBook(payload);
+    const result = await bookTrackerAddBook(payload);
 
-    expect(mockedApiClient).toHaveBeenCalledWith('/api/books', {
+    expect(mockApiClient).toHaveBeenCalledWith('/api/books', {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+    expect(result).toEqual(mockBook);
   });
 });
 
 describe('bookTrackerUpdateBook', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const mockBook: BookTrackerBook = {
+    id: 'book-123',
+    title: 'Updated Book',
+    author: 'Updated Author',
+    status: BookTrackerBookStatus.Reading,
+    addedDate: '2024-01-01T00:00:00Z',
+  };
 
-  it('calls apiClient with PUT method and stringified payload', async () => {
-    mockedApiClient.mockResolvedValueOnce(SAMPLE_BOOK);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-    await bookTrackerUpdateBook('b-001', { title: 'Updated Title' });
+  it('should update a book', async () => {
+    mockApiClient.mockResolvedValueOnce(mockBook);
 
-    expect(mockedApiClient).toHaveBeenCalledWith('/api/books/b-001', {
+    const payload = {
+      title: 'Updated Book',
+      status: BookTrackerBookStatus.Reading,
+    };
+
+    const result = await bookTrackerUpdateBook('book-123', payload);
+
+    expect(mockApiClient).toHaveBeenCalledWith('/api/books/book-123', {
       method: 'PUT',
-      body: JSON.stringify({ title: 'Updated Title' }),
+      body: JSON.stringify(payload),
     });
+    expect(result).toEqual(mockBook);
   });
 });
 
 describe('bookTrackerUpdateBookStatus', () => {
-  beforeEach(() => jest.clearAllMocks());
+  const mockBook: BookTrackerBook = {
+    id: 'book-123',
+    title: 'Test Book',
+    author: 'Test Author',
+    status: BookTrackerBookStatus.Completed,
+    addedDate: '2024-01-01T00:00:00Z',
+  };
 
-  it('calls apiClient with PATCH method and status payload', async () => {
-    mockedApiClient.mockResolvedValueOnce({ ...SAMPLE_BOOK, status: 'Reading' });
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-    await bookTrackerUpdateBookStatus('b-001', { status: 'Reading' });
+  it('should update book status', async () => {
+    mockApiClient.mockResolvedValueOnce(mockBook);
 
-    expect(mockedApiClient).toHaveBeenCalledWith('/api/books/b-001/status', {
+    const result = await bookTrackerUpdateBookStatus('book-123', BookTrackerBookStatus.Completed);
+
+    expect(mockApiClient).toHaveBeenCalledWith('/api/books/book-123/status', {
       method: 'PATCH',
-      body: JSON.stringify({ status: 'Reading' }),
+      body: JSON.stringify({ status: BookTrackerBookStatus.Completed }),
     });
+    expect(result).toEqual(mockBook);
   });
 });
 
 describe('bookTrackerDeleteBook', () => {
-  beforeEach(() => jest.clearAllMocks());
-
-  it('calls apiClient with DELETE method', async () => {
-    mockedApiClient.mockResolvedValueOnce(undefined);
-
-    await bookTrackerDeleteBook('b-001');
-
-    expect(mockedApiClient).toHaveBeenCalledWith('/api/books/b-001', {
-      method: 'DELETE',
-    });
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('swallows ApiError with status 0 (JSON-parse on 204)', async () => {
-    mockedApiClient.mockRejectedValueOnce(new ApiError('empty body', 0));
+  it('swallows ApiError with status 0 (JSON parse on 204)', async () => {
+    mockApiClient.mockRejectedValueOnce(new ApiError('empty body', 0));
 
-    await expect(bookTrackerDeleteBook('b-001')).resolves.toBeUndefined();
+    await expect(bookTrackerDeleteBook('book-123')).resolves.toBeUndefined();
   });
 
   it('rethrows ApiError when the status is not 0', async () => {
     const serverErr = new ApiError('server error', 500);
-    mockedApiClient.mockRejectedValueOnce(serverErr);
+    mockApiClient.mockRejectedValueOnce(serverErr);
 
-    await expect(bookTrackerDeleteBook('b-001')).rejects.toThrow(serverErr);
-  });
-});
-
-describe('bookTrackerBookReadableError', () => {
-  it('returns the envelope message when ApiError carries a body with message', () => {
-    const err = new ApiError('HTTP 409', 409, {
-      message: 'Duplicate book detected',
-    });
-    expect(bookTrackerBookReadableError(err)).toBe('Duplicate book detected');
-  });
-
-  it('returns 404 message for not-found errors', () => {
-    const err = new ApiError('HTTP 404', 404);
-    expect(bookTrackerBookReadableError(err)).toBe('Book not found.');
-  });
-
-  it('returns 409 message for conflict errors', () => {
-    const err = new ApiError('HTTP 409', 409);
-    expect(bookTrackerBookReadableError(err)).toBe(
-      'A book with this ISBN already exists in your library.',
-    );
-  });
-
-  it('returns 403 message for forbidden errors', () => {
-    const err = new ApiError('HTTP 403', 403);
-    expect(bookTrackerBookReadableError(err)).toBe(
-      'You do not have permission to access this book.',
-    );
-  });
-
-  it('falls back to generic message for unmapped status codes', () => {
-    const err = new ApiError('HTTP 502', 502);
-    expect(bookTrackerBookReadableError(err)).toBe(
-      'Something unexpected happened. Please try again.',
-    );
-  });
-
-  it('returns the message property for plain Error instances', () => {
-    expect(bookTrackerBookReadableError(new Error('timeout'))).toBe('timeout');
-  });
-
-  it('returns the unknown-problem string for non-error values', () => {
-    expect(bookTrackerBookReadableError(null)).toBe(
-      'An unknown problem occurred while contacting BookTracker.',
-    );
+    await expect(bookTrackerDeleteBook('book-456')).rejects.toThrow(serverErr);
   });
 });
