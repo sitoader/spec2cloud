@@ -5,13 +5,13 @@
  */
 
 import { useCallback } from 'react';
-import type { BookTrackerBookStatus } from '@/types';
+import { BookTrackerBookStatus } from '@/types';
 
 const STATUS_OPTIONS: { value: BookTrackerBookStatus | ''; label: string }[] = [
   { value: '', label: 'All' },
-  { value: 'Completed', label: 'Read' },
-  { value: 'ToRead', label: 'TBR' },
-  { value: 'Reading', label: 'Reading' },
+  { value: BookTrackerBookStatus.Completed, label: 'Read' },
+  { value: BookTrackerBookStatus.ToRead, label: 'TBR' },
+  { value: BookTrackerBookStatus.Reading, label: 'Reading' },
 ];
 
 interface BookTrackerBookFiltersProps {

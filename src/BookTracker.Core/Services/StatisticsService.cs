@@ -92,13 +92,37 @@ public class StatisticsService : IStatisticsService
 
         var genreCounts = result.Books
             .Where(b => !string.IsNullOrWhiteSpace(b.Genres))
-            .SelectMany(b => b.Genres!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            .SelectMany(b => ParseGenres(b.Genres!))
             .GroupBy(g => g, StringComparer.OrdinalIgnoreCase)
             .Select(g => new GenreTally { GenreName = g.Key, BookCount = g.Count() })
             .OrderByDescending(t => t.BookCount)
             .ToList();
 
         return genreCounts;
+    }
+
+    /// <summary>
+    /// Parses a genres string which may be a JSON array (e.g. '["Fantasy","Sci-Fi"]')
+    /// or a plain comma-separated list. Returns individual genre names.
+    /// </summary>
+    private static IEnumerable<string> ParseGenres(string raw)
+    {
+        var trimmed = raw.Trim();
+        if (trimmed.StartsWith('['))
+        {
+            try
+            {
+                var parsed = System.Text.Json.JsonSerializer.Deserialize<string[]>(trimmed);
+                if (parsed is not null)
+                    return parsed.Where(g => !string.IsNullOrWhiteSpace(g)).Select(g => g.Trim());
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                // Fall through to comma-split
+            }
+        }
+
+        return trimmed.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     }
 
     /// <inheritdoc />

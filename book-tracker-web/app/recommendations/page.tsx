@@ -13,6 +13,7 @@ import type { BookTrackerBookRecommendation } from '@/types';
 import { BookTrackerBookStatus } from '@/types';
 import { bookTrackerGetBooks } from '@/lib/api/books';
 import { bookTrackerAddBook } from '@/lib/api/books';
+import { ApiError } from '@/lib/api/client';
 import {
   bookTrackerGenerateRecommendations,
   bookTrackerRecommendationsReadableError,
@@ -89,13 +90,32 @@ export default function BookTrackerRecommendationsPage(): React.JSX.Element {
   /* Add recommendation to TBR */
   const handleAddToTbr = useCallback(
     async (rec: BookTrackerBookRecommendation): Promise<void> => {
-      await bookTrackerAddBook({
-        title: rec.title,
-        author: rec.author,
-        genres: rec.genre ? [rec.genre] : undefined,
-        status: BookTrackerBookStatus.ToRead,
-      });
-      setAddedTitles((prev) => new Set(prev).add(rec.title));
+      try {
+        // Prefer enriched genres array, fall back to single AI genre
+        const genres = rec.genres?.length
+          ? rec.genres
+          : rec.genre
+            ? [rec.genre]
+            : undefined;
+
+        await bookTrackerAddBook({
+          title: rec.title,
+          author: rec.author,
+          isbn: rec.isbn,
+          coverImageUrl: rec.coverImageUrl,
+          description: rec.description,
+          genres,
+          status: BookTrackerBookStatus.ToRead,
+        });
+        setAddedTitles((prev) => new Set(prev).add(rec.title));
+      } catch (err: unknown) {
+        // If book already exists (409), treat it as "already added"
+        if (err instanceof ApiError && err.status === 409) {
+          setAddedTitles((prev) => new Set(prev).add(rec.title));
+        } else {
+          setError(err instanceof Error ? err.message : 'Failed to add book');
+        }
+      }
     },
     [],
   );

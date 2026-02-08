@@ -22,6 +22,46 @@ namespace BookTracker.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("BookTracker.Core.Entities.Achievement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AchievementCategory")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("BadgeImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int?>("ThresholdValue")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Achievements_Slug");
+
+                    b.ToTable("Achievements", (string)null);
+                });
+
             modelBuilder.Entity("BookTracker.Core.Entities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -158,6 +198,206 @@ namespace BookTracker.Infrastructure.Migrations
                     b.ToTable("Books", (string)null);
                 });
 
+            modelBuilder.Entity("BookTracker.Core.Entities.BookReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FormattedBody")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("PlainTextBody")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReadingMood")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<bool?>("Recommended")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Stars")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TagsJson")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("WrittenAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("UserId", "BookId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_BookReviews_UserId_BookId");
+
+                    b.ToTable("BookReviews", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_BookReviews_Stars", "\"Stars\" >= 1 AND \"Stars\" <= 5");
+                        });
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.BookSeries", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("ExpectedBookCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("RegisteredAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SeriesTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Synopsis")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BookSeries", (string)null);
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.BookSeriesEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SeriesId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("SeriesId", "BookId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_BookSeriesEntries_SeriesId_BookId");
+
+                    b.ToTable("BookSeriesEntries", (string)null);
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.Collection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("SetAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Summary")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Collections_UserId");
+
+                    b.ToTable("Collections", (string)null);
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.CollectionBook", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Annotation")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CollectionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("IncludedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("CollectionId", "BookId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CollectionBooks_CollectionId_BookId");
+
+                    b.ToTable("CollectionBooks", (string)null);
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.FollowedAuthor", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("AlertsEnabled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime>("StartedFollowingAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "AuthorName")
+                        .IsUnique()
+                        .HasDatabaseName("IX_FollowedAuthors_UserId_AuthorName");
+
+                    b.ToTable("FollowedAuthors", (string)null);
+                });
+
             modelBuilder.Entity("BookTracker.Core.Entities.Rating", b =>
                 {
                     b.Property<Guid>("Id")
@@ -190,6 +430,184 @@ namespace BookTracker.Infrastructure.Migrations
                         {
                             t.HasCheckConstraint("CK_Ratings_Score", "\"Score\" >= 1 AND \"Score\" <= 5");
                         });
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.ReadingGoal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("FinishedBookCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("SetAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("TargetBookCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TargetYear")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "TargetYear")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ReadingGoals_UserId_TargetYear");
+
+                    b.ToTable("ReadingGoals", (string)null);
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.ReadingProgress", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("BookTotalPages")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("CompletionPercent")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("PageNumber")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("ProjectedFinishDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.HasIndex("UserId", "BookId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ReadingProgress_UserId_BookId");
+
+                    b.ToTable("ReadingProgress", (string)null);
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.ReadingSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("PageCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("PageReached")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("RecordedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("SessionEnd")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SessionNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("SessionStart")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId")
+                        .HasDatabaseName("IX_ReadingSessions_BookId");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_ReadingSessions_UserId");
+
+                    b.ToTable("ReadingSessions", (string)null);
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.ReadingStreak", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("ActiveStreakDays")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BestStreakDays")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("ModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("MostRecentReadDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("TrackedSince")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_ReadingStreaks_UserId");
+
+                    b.ToTable("ReadingStreaks", (string)null);
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.UserAchievement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AchievementId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("EarnedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementId");
+
+                    b.HasIndex("UserId", "AchievementId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_UserAchievements_UserId_AchievementId");
+
+                    b.ToTable("UserAchievements", (string)null);
                 });
 
             modelBuilder.Entity("BookTracker.Core.Entities.UserPreferences", b =>
@@ -372,6 +790,85 @@ namespace BookTracker.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("BookTracker.Core.Entities.BookReview", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.Book", "ReviewedBook")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookTracker.Core.Entities.ApplicationUser", "Reviewer")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ReviewedBook");
+
+                    b.Navigation("Reviewer");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.BookSeriesEntry", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.Book", "LinkedBook")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookTracker.Core.Entities.BookSeries", "ParentSeries")
+                        .WithMany("Members")
+                        .HasForeignKey("SeriesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LinkedBook");
+
+                    b.Navigation("ParentSeries");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.Collection", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.CollectionBook", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.Book", "LinkedBook")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookTracker.Core.Entities.Collection", "ParentCollection")
+                        .WithMany("Items")
+                        .HasForeignKey("CollectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LinkedBook");
+
+                    b.Navigation("ParentCollection");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.FollowedAuthor", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.ApplicationUser", "Follower")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Follower");
+                });
+
             modelBuilder.Entity("BookTracker.Core.Entities.Rating", b =>
                 {
                     b.HasOne("BookTracker.Core.Entities.Book", "Book")
@@ -381,6 +878,85 @@ namespace BookTracker.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.ReadingGoal", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.ReadingProgress", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.Book", "TrackedBook")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookTracker.Core.Entities.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("TrackedBook");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.ReadingSession", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.Book", "TrackedBook")
+                        .WithMany()
+                        .HasForeignKey("BookId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookTracker.Core.Entities.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("TrackedBook");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.ReadingStreak", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.UserAchievement", b =>
+                {
+                    b.HasOne("BookTracker.Core.Entities.Achievement", "Badge")
+                        .WithMany("Holders")
+                        .HasForeignKey("AchievementId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BookTracker.Core.Entities.ApplicationUser", "Owner")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Badge");
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("BookTracker.Core.Entities.UserPreferences", b =>
@@ -445,6 +1021,11 @@ namespace BookTracker.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("BookTracker.Core.Entities.Achievement", b =>
+                {
+                    b.Navigation("Holders");
+                });
+
             modelBuilder.Entity("BookTracker.Core.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("Books");
@@ -455,6 +1036,16 @@ namespace BookTracker.Infrastructure.Migrations
             modelBuilder.Entity("BookTracker.Core.Entities.Book", b =>
                 {
                     b.Navigation("Rating");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.BookSeries", b =>
+                {
+                    b.Navigation("Members");
+                });
+
+            modelBuilder.Entity("BookTracker.Core.Entities.Collection", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

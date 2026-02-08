@@ -17,6 +17,7 @@ import {
   bookTrackerUpdateBookStatus,
   bookTrackerDeleteBook,
 } from '@/lib/api/books';
+import { FollowAuthorButton } from '@/components/authors/FollowAuthorButton';
 
 /* ------------------------------------------------------------------ */
 /*  Interface declarations                                             */
@@ -24,6 +25,9 @@ import {
 
 interface BookTrackerBookDetailProps {
   publication: BookTrackerBook;
+  onAddToCollection?: () => void;
+  onWriteReview?: () => void;
+  hasReview?: boolean;
 }
 
 /* ------------------------------------------------------------------ */
@@ -32,6 +36,9 @@ interface BookTrackerBookDetailProps {
 
 export function BookTrackerBookDetail({
   publication,
+  onAddToCollection,
+  onWriteReview,
+  hasReview = false,
 }: BookTrackerBookDetailProps): React.JSX.Element {
   const router = useRouter();
   const [currentStatus, setCurrentStatus] = useState(publication.status);
@@ -109,8 +116,8 @@ export function BookTrackerBookDetail({
 
         {/* Header section */}
         <div className="flex flex-col gap-6 md:flex-row">
-          {/* Cover image */}
-          <div className="flex-shrink-0">
+          {/* Cover image + action menu */}
+          <div className="flex-shrink-0 space-y-3">
             {publication.coverImageUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -125,6 +132,49 @@ export function BookTrackerBookDetail({
                 </span>
               </div>
             )}
+
+            {/* Quick actions column */}
+            <div className="flex w-56 flex-col gap-1.5 rounded-lg border border-zinc-200 bg-zinc-50 p-2 dark:border-zinc-700 dark:bg-zinc-800/60">
+              <FollowAuthorButton authorName={publication.author} variant="menu" />
+
+              {onAddToCollection && (
+                <button
+                  type="button"
+                  onClick={onAddToCollection}
+                  className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                >
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path d="M19 11H5m7-7v14" strokeLinecap="round" />
+                  </svg>
+                  Add to Collection
+                </button>
+              )}
+
+              {onWriteReview && !hasReview && (
+                <button
+                  type="button"
+                  onClick={onWriteReview}
+                  className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                >
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Write a Review
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={initiateDelete}
+                disabled={operationInProgress}
+                className="flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-xs font-medium text-red-400 transition-colors hover:bg-red-50 disabled:opacity-50 dark:text-red-500 dark:hover:bg-red-950/30"
+              >
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Delete Book
+              </button>
+            </div>
           </div>
 
           {/* Metadata section */}
@@ -138,39 +188,21 @@ export function BookTrackerBookDetail({
               </p>
             </div>
 
-            {/* Status badge and controls */}
+            {/* Status badge and dropdown */}
             <div className="flex flex-wrap items-center gap-3">
               <BookTrackerStatusBadge status={currentStatus} />
               {!operationInProgress && (
-                <div className="flex gap-2">
-                  {currentStatus !== BookTrackerBookStatus.ToRead && (
-                    <button
-                      type="button"
-                      onClick={() => handleStatusChange(BookTrackerBookStatus.ToRead)}
-                      className="rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                    >
-                      Mark To Read
-                    </button>
-                  )}
-                  {currentStatus !== BookTrackerBookStatus.Reading && (
-                    <button
-                      type="button"
-                      onClick={() => handleStatusChange(BookTrackerBookStatus.Reading)}
-                      className="rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                    >
-                      Mark Reading
-                    </button>
-                  )}
-                  {currentStatus !== BookTrackerBookStatus.Completed && (
-                    <button
-                      type="button"
-                      onClick={() => handleStatusChange(BookTrackerBookStatus.Completed)}
-                      className="rounded-md border border-zinc-300 bg-white px-3 py-1 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-                    >
-                      Mark Completed
-                    </button>
-                  )}
-                </div>
+                <select
+                  value={currentStatus}
+                  onChange={(e) =>
+                    handleStatusChange(Number(e.target.value) as BookTrackerBookStatus)
+                  }
+                  className="rounded-md border border-zinc-300 bg-white px-2.5 py-1 text-xs font-medium text-zinc-700 transition-colors hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                >
+                  <option value={BookTrackerBookStatus.ToRead}>To Read</option>
+                  <option value={BookTrackerBookStatus.Reading}>Reading</option>
+                  <option value={BookTrackerBookStatus.Completed}>Completed</option>
+                </select>
               )}
             </div>
 
@@ -231,24 +263,6 @@ export function BookTrackerBookDetail({
               </div>
             </div>
 
-            {/* Action buttons */}
-            <div className="flex gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
-              <button
-                type="button"
-                onClick={() => router.push('/books')}
-                className="rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-              >
-                Back to Library
-              </button>
-              <button
-                type="button"
-                onClick={initiateDelete}
-                disabled={operationInProgress}
-                className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50 dark:bg-red-700 dark:hover:bg-red-800"
-              >
-                Delete Book
-              </button>
-            </div>
           </div>
         </div>
       </div>

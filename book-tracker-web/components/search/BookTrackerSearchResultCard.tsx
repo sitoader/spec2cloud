@@ -60,6 +60,9 @@ export default function BookTrackerSearchResultCard({
       setAddingAs(shelf);
       try {
         await onAddToLibrary(externalBook, shelf);
+      } catch {
+        // Parent handles error display via banner — swallow here to
+        // prevent unhandled rejection from reaching error boundary.
       } finally {
         setAddingAs(null);
       }

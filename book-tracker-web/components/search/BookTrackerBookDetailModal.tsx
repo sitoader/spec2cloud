@@ -65,6 +65,9 @@ export default function BookTrackerBookDetailModal({
       try {
         await onAddToLibrary(externalBook, shelf);
         onDismiss();
+      } catch {
+        // Parent handles error display via banner — swallow here to
+        // prevent unhandled rejection from reaching error boundary.
       } finally {
         setAddingAs(null);
       }

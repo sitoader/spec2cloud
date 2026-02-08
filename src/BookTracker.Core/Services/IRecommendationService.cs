@@ -10,6 +10,14 @@ public record RecommendationResult
     public string? Genre { get; init; }
     public required string Reason { get; init; }
     public int ConfidenceScore { get; init; }
+
+    // Enrichment fields from external catalogue lookup
+    public string? Description { get; set; }
+    public string? CoverImageUrl { get; set; }
+    public string? Isbn { get; set; }
+    public int? PublicationYear { get; set; }
+    public string[]? Genres { get; set; }
+    public string? Source { get; set; }
 }
 
 /// <summary>

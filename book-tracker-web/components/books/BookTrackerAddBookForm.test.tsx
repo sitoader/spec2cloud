@@ -10,7 +10,7 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('@/lib/api/books', () => ({
   bookTrackerAddBook: jest.fn(),
-  bookTrackerBookReadableError: jest.fn(() => 'Something went wrong'),
+  bookTrackerReadableError: jest.fn(() => 'Something went wrong'),
 }));
 
 const mockedAddBook = booksApi.bookTrackerAddBook as jest.Mock;

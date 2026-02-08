@@ -16,7 +16,7 @@ import type {
 /* ------------------------------------------------------------------ */
 
 const SEARCH_ENDPOINT = '/api/search/books';
-const DEFAULT_RESULT_CAP = 20;
+const DEFAULT_RESULT_CAP = 10;
 
 const FRIENDLY_MESSAGES: ReadonlyMap<number, string> = new Map([
   [400, 'Search query must be at least 3 characters.'],

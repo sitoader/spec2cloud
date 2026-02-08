@@ -6,12 +6,12 @@
 
 import { type FormEvent, useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { bookTrackerAddBook, bookTrackerBookReadableError } from '@/lib/api/books';
+import { bookTrackerAddBook, bookTrackerReadableError } from '@/lib/api/books';
 import {
-  bookTrackerAddBookSchema,
+  bookTrackerAddBookFormSchema,
   type BookTrackerAddBookFormData,
 } from '@/lib/validations/books';
-import type { BookTrackerBookStatus } from '@/types';
+import { BookTrackerBookStatus } from '@/types';
 
 /* ------------------------------------------------------------------ */
 /*  Draft type                                                         */
@@ -37,7 +37,7 @@ const BLANK_DRAFT: AddBookDraft = {
   description: '',
   genres: '',
   publicationDate: '',
-  status: 'ToRead',
+  status: BookTrackerBookStatus.ToRead,
   source: '',
 };
 
@@ -70,7 +70,7 @@ export default function BookTrackerAddBookForm(): React.JSX.Element {
       setBanner('');
       setFieldNotes({});
 
-      const parsed = bookTrackerAddBookSchema.safeParse(draft);
+      const parsed = bookTrackerAddBookFormSchema.safeParse(draft);
       if (!parsed.success) {
         const notes: Partial<Record<keyof BookTrackerAddBookFormData, string>> = {};
         for (const issue of parsed.error.issues) {
@@ -102,7 +102,7 @@ export default function BookTrackerAddBookForm(): React.JSX.Element {
         });
         router.push(`/books/${book.id}`);
       } catch (err: unknown) {
-        setBanner(bookTrackerBookReadableError(err));
+        setBanner(bookTrackerReadableError(err));
       } finally {
         setWorking(false);
       }

@@ -19,4 +19,22 @@ public record BookRecommendationDto
 
     /// <summary>Confidence score from 1 (low) to 5 (high).</summary>
     public int ConfidenceScore { get; init; }
+
+    /// <summary>Book description from external catalogue.</summary>
+    public string? Description { get; init; }
+
+    /// <summary>Cover image URL from external catalogue.</summary>
+    public string? CoverImageUrl { get; init; }
+
+    /// <summary>ISBN from external catalogue.</summary>
+    public string? Isbn { get; init; }
+
+    /// <summary>Publication year from external catalogue.</summary>
+    public int? PublicationYear { get; init; }
+
+    /// <summary>Genres from external catalogue.</summary>
+    public string[]? Genres { get; init; }
+
+    /// <summary>External catalogue source (e.g. "google-books").</summary>
+    public string? Source { get; init; }
 }

@@ -204,6 +204,7 @@ public static class ReviewEndpoints
         {
             Id = review.Id,
             UserId = review.UserId,
+            ReviewerDisplayName = review.Reviewer?.DisplayName ?? review.Reviewer?.UserName,
             BookId = review.BookId,
             Rating = review.Stars,
             ReviewText = review.PlainTextBody,

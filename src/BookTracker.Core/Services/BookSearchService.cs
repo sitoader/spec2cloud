@@ -18,8 +18,9 @@ public class BookSearchService : IBookSearchService
     private readonly ILogger<BookSearchService> _logger;
 
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(24);
-    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(3);
     private const int MaxGenresPerBook = 10;
+    private const int MaxEnrichmentItems = 5;
 
     public BookSearchService(
         IHttpClientFactory httpClientFactory,
@@ -42,17 +43,66 @@ public class BookSearchService : IBookSearchService
             return cached;
         }
 
-        // Try Google Books first, fall back to Open Library
-        var results = await SearchGoogleBooksAsync(query, maxResults);
+        // Run both APIs in parallel for speed
+        var googleTask = SearchGoogleBooksAsync(query, maxResults);
+        var openLibTask = SearchOpenLibraryAsync(query, maxResults);
 
-        if (results.Count == 0)
+        await Task.WhenAll(googleTask, openLibTask);
+
+        var googleResults = googleTask.Result;
+        var openLibResults = openLibTask.Result;
+
+        // Prefer Google Books results, supplement with Open Library for variety
+        List<BookSearchResult> results;
+        if (googleResults.Count > 0 && openLibResults.Count > 0)
         {
-            _logger.LogInformation("Google Books returned no results or failed, falling back to Open Library for query: {Query}", query);
-            results = await SearchOpenLibraryAsync(query, maxResults);
+            results = MergeAndDeduplicate(googleResults, openLibResults, maxResults);
         }
+        else if (googleResults.Count > 0)
+        {
+            results = googleResults;
+        }
+        else
+        {
+            results = openLibResults;
+        }
+
+        // Enrich only a limited number of results that are missing descriptions
+        await EnrichMissingDescriptionsAsync(results);
 
         _cache.Set(cacheKey, results, CacheDuration);
         return results;
+    }
+
+    /// <summary>
+    /// Merges Google Books and Open Library results, deduplicating by title+author.
+    /// Google results take priority; Open Library fills remaining slots.
+    /// </summary>
+    private static List<BookSearchResult> MergeAndDeduplicate(
+        List<BookSearchResult> primary,
+        List<BookSearchResult> secondary,
+        int maxResults)
+    {
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var merged = new List<BookSearchResult>();
+
+        foreach (var r in primary)
+        {
+            var key = $"{r.Title?.Trim()}|{r.Author?.Trim()}";
+            if (seen.Add(key))
+                merged.Add(r);
+            if (merged.Count >= maxResults) return merged;
+        }
+
+        foreach (var r in secondary)
+        {
+            var key = $"{r.Title?.Trim()}|{r.Author?.Trim()}";
+            if (seen.Add(key))
+                merged.Add(r);
+            if (merged.Count >= maxResults) return merged;
+        }
+
+        return merged;
     }
 
     /// <summary>Searches Google Books API.</summary>
@@ -293,6 +343,82 @@ public class BookSearchService : IBookSearchService
         }
 
         return results;
+    }
+
+    /// <summary>
+    /// For search results missing a description, fetches details from the
+    /// individual item endpoint (Google Books /volumes/{id} or Open Library /works/{key}).
+    /// Runs in parallel with a short timeout so it doesn't block the response.
+    /// </summary>
+    private async Task EnrichMissingDescriptionsAsync(List<BookSearchResult> results)
+    {
+        var toEnrich = results
+            .Where(r => string.IsNullOrWhiteSpace(r.Description) && !string.IsNullOrWhiteSpace(r.ExternalId))
+            .Take(MaxEnrichmentItems)
+            .ToList();
+        if (toEnrich.Count == 0) return;
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(4));
+        var tasks = toEnrich.Select(r => FetchDescriptionAsync(r, cts.Token));
+
+        try
+        {
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception ex) when (ex is OperationCanceledException or TaskCanceledException)
+        {
+            _logger.LogDebug("Description enrichment timed out for some results");
+        }
+    }
+
+    private async Task FetchDescriptionAsync(BookSearchResult result, CancellationToken ct)
+    {
+        try
+        {
+            if (result.Source == "google-books")
+            {
+                var client = _httpClientFactory.CreateClient("GoogleBooks");
+                var url = $"https://www.googleapis.com/books/v1/volumes/{Uri.EscapeDataString(result.ExternalId!)}";
+                var response = await client.GetAsync(url, ct);
+                if (!response.IsSuccessStatusCode) return;
+
+                var json = await response.Content.ReadAsStringAsync(ct);
+                using var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("volumeInfo", out var vol) &&
+                    vol.TryGetProperty("description", out var desc))
+                {
+                    result.Description = desc.GetString();
+                }
+            }
+            else if (result.Source == "open-library" && result.ExternalId is not null)
+            {
+                // Open Library key looks like "/works/OL123W"
+                var workKey = result.ExternalId.TrimStart('/');
+                var client = _httpClientFactory.CreateClient("OpenLibrary");
+                var url = $"https://openlibrary.org/{workKey}.json";
+                var response = await client.GetAsync(url, ct);
+                if (!response.IsSuccessStatusCode) return;
+
+                var json = await response.Content.ReadAsStringAsync(ct);
+                using var doc = JsonDocument.Parse(json);
+                if (doc.RootElement.TryGetProperty("description", out var descProp))
+                {
+                    if (descProp.ValueKind == JsonValueKind.String)
+                    {
+                        result.Description = descProp.GetString();
+                    }
+                    else if (descProp.ValueKind == JsonValueKind.Object &&
+                             descProp.TryGetProperty("value", out var val))
+                    {
+                        result.Description = val.GetString();
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogDebug(ex, "Failed to enrich description for {Title}", result.Title);
+        }
     }
 
     private static string BuildCacheKey(string query, int maxResults)

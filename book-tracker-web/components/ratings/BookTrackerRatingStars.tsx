@@ -81,22 +81,18 @@ export default function BookTrackerRatingStars({
         const star = i + 1;
         const filled = star <= displayValue;
 
-        return (
+        return interactive ? (
           <motion.button
             key={star}
             type="button"
             role="radio"
             aria-checked={star === value}
             aria-label={`${star} star${star !== 1 ? 's' : ''}`}
-            disabled={!interactive}
             onClick={(): void => handleClick(star)}
             onMouseEnter={(): void => handleMouseEnter(star)}
-            whileHover={interactive ? { scale: 1.1 } : {}}
-            whileTap={interactive ? { scale: 0.9 } : {}}
-            className={cn(
-              'transition-colors disabled:cursor-default',
-              interactive && 'cursor-pointer',
-            )}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="cursor-pointer transition-colors"
           >
             <Star
               className={cn(
@@ -108,6 +104,24 @@ export default function BookTrackerRatingStars({
               )}
             />
           </motion.button>
+        ) : (
+          <span
+            key={star}
+            role="radio"
+            aria-checked={star === value}
+            aria-label={`${star} star${star !== 1 ? 's' : ''}`}
+            className="cursor-default"
+          >
+            <Star
+              className={cn(
+                sizeClasses[size],
+                'transition-all duration-200',
+                filled
+                  ? 'fill-yellow-400 text-yellow-400'
+                  : 'fill-none text-zinc-300 dark:text-zinc-600',
+              )}
+            />
+          </span>
         );
       })}
     </div>

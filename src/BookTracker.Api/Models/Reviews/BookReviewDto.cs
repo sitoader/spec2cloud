@@ -7,6 +7,7 @@ public class BookReviewDto
 {
     public Guid Id { get; set; }
     public string UserId { get; set; } = default!;
+    public string? ReviewerDisplayName { get; set; }
     public Guid BookId { get; set; }
     public int Rating { get; set; }
     public string? ReviewText { get; set; }

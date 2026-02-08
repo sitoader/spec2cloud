@@ -182,6 +182,13 @@ export interface BookTrackerBookRecommendation {
   genre?: string;
   reason: string;
   confidenceScore: number;
+  /** Enrichment fields from external catalogue lookup */
+  description?: string;
+  coverImageUrl?: string;
+  isbn?: string;
+  publicationYear?: number;
+  genres?: string[];
+  source?: string;
 }
 
 /** Response payload from POST /api/recommendations/generate. */
@@ -383,6 +390,7 @@ export interface BookTrackerUpdateReviewPayload {
 export interface BookTrackerBookReview {
   id: string;
   userId: string;
+  reviewerDisplayName?: string;
   bookId: string;
   rating: number;
   reviewText?: string;

@@ -22,6 +22,7 @@ public class BookReviewRepository : IBookReviewRepository
     {
         return await _db.BookReviews
             .AsNoTracking()
+            .Include(r => r.Reviewer)
             .Where(r => r.BookId == bookId)
             .OrderByDescending(r => r.WrittenAt)
             .ToListAsync();
@@ -32,6 +33,7 @@ public class BookReviewRepository : IBookReviewRepository
     {
         return await _db.BookReviews
             .AsNoTracking()
+            .Include(r => r.Reviewer)
             .Where(r => r.UserId == reviewerId)
             .OrderByDescending(r => r.WrittenAt)
             .ToListAsync();

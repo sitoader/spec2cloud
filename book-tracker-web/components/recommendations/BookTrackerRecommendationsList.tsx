@@ -4,12 +4,14 @@
  * BookTrackerRecommendationsList — grid of recommendation cards.
  *
  * Displays AI-generated book recommendations in a responsive grid,
- * with loading skeleton and empty state fallbacks.
+ * with loading skeleton, empty state fallbacks, and a detail modal.
  */
 
+import { useState } from 'react';
 import type { BookTrackerBookRecommendation } from '@/types';
 import { BookTrackerRecommendationCard } from './BookTrackerRecommendationCard';
 import { BookTrackerRecommendationLoading } from './BookTrackerRecommendationLoading';
+import BookTrackerRecommendationDetailModal from './BookTrackerRecommendationDetailModal';
 
 /* ------------------------------------------------------------------ */
 /*  Interface declarations                                             */
@@ -34,6 +36,8 @@ export function BookTrackerRecommendationsList({
   onAddToTbr,
   onDismiss,
 }: BookTrackerRecommendationsListProps): React.JSX.Element {
+  const [detailRec, setDetailRec] = useState<BookTrackerBookRecommendation | null>(null);
+
   if (isLoading) {
     return <BookTrackerRecommendationLoading />;
   }
@@ -58,29 +62,49 @@ export function BookTrackerRecommendationsList({
   }
 
   return (
-    <div
-      className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
-      role="list"
-      aria-label="Book recommendations"
-    >
-      {recommendations.map((rec) => (
-        <div key={`${rec.title}-${rec.author}`} role="listitem">
-          <BookTrackerRecommendationCard
-            title={rec.title}
-            author={rec.author}
-            genre={rec.genre}
-            reason={rec.reason}
-            confidenceScore={rec.confidenceScore}
-            isAdded={addedTitles.has(rec.title)}
-            onAddToTbr={async (): Promise<void> => {
-              await onAddToTbr(rec);
-            }}
-            onDismiss={(): void => {
-              onDismiss(rec);
-            }}
-          />
-        </div>
-      ))}
-    </div>
+    <>
+      <div
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        role="list"
+        aria-label="Book recommendations"
+      >
+        {recommendations.map((rec) => (
+          <div key={`${rec.title}-${rec.author}`} role="listitem">
+            <BookTrackerRecommendationCard
+              title={rec.title}
+              author={rec.author}
+              genre={rec.genre}
+              reason={rec.reason}
+              confidenceScore={rec.confidenceScore}
+              coverImageUrl={rec.coverImageUrl}
+              isAdded={addedTitles.has(rec.title)}
+              onViewDetails={(): void => {
+                setDetailRec(rec);
+              }}
+              onAddToTbr={async (): Promise<void> => {
+                await onAddToTbr(rec);
+              }}
+              onDismiss={(): void => {
+                onDismiss(rec);
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* Detail modal */}
+      <BookTrackerRecommendationDetailModal
+        recommendation={detailRec}
+        isAdded={detailRec ? addedTitles.has(detailRec.title) : false}
+        onDismiss={(): void => {
+          setDetailRec(null);
+        }}
+        onAddToTbr={async (): Promise<void> => {
+          if (detailRec) {
+            await onAddToTbr(detailRec);
+          }
+        }}
+      />
+    </>
   );
 }

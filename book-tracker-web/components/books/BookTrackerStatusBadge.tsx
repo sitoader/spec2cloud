@@ -5,18 +5,18 @@
  */
 
 import { cn } from '@/lib/utils/cn';
-import type { BookTrackerBookStatus } from '@/types';
+import { BookTrackerBookStatus } from '@/types';
 
 const STATUS_STYLES: Record<BookTrackerBookStatus, string> = {
-  ToRead: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  Reading: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300',
-  Completed: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300',
+  [BookTrackerBookStatus.ToRead]: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+  [BookTrackerBookStatus.Reading]: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300',
+  [BookTrackerBookStatus.Completed]: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300',
 };
 
 const STATUS_LABELS: Record<BookTrackerBookStatus, string> = {
-  ToRead: 'To Read',
-  Reading: 'Reading',
-  Completed: 'Completed',
+  [BookTrackerBookStatus.ToRead]: 'To Read',
+  [BookTrackerBookStatus.Reading]: 'Reading',
+  [BookTrackerBookStatus.Completed]: 'Completed',
 };
 
 interface BookTrackerStatusBadgeProps {

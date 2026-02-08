@@ -14,6 +14,7 @@ public class RecommendationService : IRecommendationService
     private readonly IBookRepository _bookRepo;
     private readonly IPreferencesService _preferencesService;
     private readonly IAiChatClient _aiClient;
+    private readonly IBookSearchService _searchService;
     private readonly IMemoryCache _cache;
     private readonly ILogger<RecommendationService> _logger;
 
@@ -26,12 +27,14 @@ public class RecommendationService : IRecommendationService
         IBookRepository bookRepo,
         IPreferencesService preferencesService,
         IAiChatClient aiClient,
+        IBookSearchService searchService,
         IMemoryCache cache,
         ILogger<RecommendationService> logger)
     {
         _bookRepo = bookRepo;
         _preferencesService = preferencesService;
         _aiClient = aiClient;
+        _searchService = searchService;
         _cache = cache;
         _logger = logger;
     }
@@ -93,6 +96,18 @@ public class RecommendationService : IRecommendationService
 
         // Parse recommendations
         var recommendations = ParseRecommendations(aiResponse.Content);
+
+        // ── Hard-filter: remove any books that match the user's library ──
+        var existingTitles = new HashSet<string>(
+            books.Select(b => b.Title),
+            StringComparer.OrdinalIgnoreCase);
+
+        recommendations = recommendations
+            .Where(r => !existingTitles.Contains(r.Title))
+            .ToList();
+
+        // ── Enrich each recommendation with external catalogue metadata ──
+        await EnrichRecommendationsAsync(recommendations);
 
         var result = new RecommendationGenerationResult
         {
@@ -220,6 +235,43 @@ public class RecommendationService : IRecommendationService
         {
             return Array.Empty<string>();
         }
+    }
+
+    /// <summary>
+    /// Enriches each recommendation with metadata from Google Books / Open Library.
+    /// Searches by "title author" and picks the best match.
+    /// Failures are silently swallowed — the recommendation still appears, just without extra metadata.
+    /// </summary>
+    private async Task EnrichRecommendationsAsync(List<RecommendationResult> recommendations)
+    {
+        var tasks = recommendations.Select(async rec =>
+        {
+            try
+            {
+                var query = $"{rec.Title} {rec.Author}";
+                var hits = await _searchService.SearchBooksAsync(query, 3);
+
+                // Pick the best match — prefer exact title match (case-insensitive)
+                var match = hits.FirstOrDefault(h =>
+                    string.Equals(h.Title, rec.Title, StringComparison.OrdinalIgnoreCase))
+                    ?? hits.FirstOrDefault();
+
+                if (match is null) return;
+
+                rec.Description = match.Description;
+                rec.CoverImageUrl = match.CoverImageUrl;
+                rec.Isbn = match.Isbn;
+                rec.PublicationYear = match.PublicationYear;
+                rec.Genres = match.Genres;
+                rec.Source = match.Source;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to enrich recommendation \"{Title}\"", rec.Title);
+            }
+        });
+
+        await Task.WhenAll(tasks);
     }
 
     /// <summary>Internal DTO for deserializing AI JSON output.</summary>

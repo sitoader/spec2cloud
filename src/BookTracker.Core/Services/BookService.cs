@@ -56,22 +56,46 @@ public class BookService : IBookService
             throw new DuplicateBookException();
         }
 
+        // Truncate fields to respect DB column max-length constraints.
+        // Minimal APIs don't enforce [MaxLength] validation attributes,
+        // so external-catalogue data can exceed DB limits.
+        var safeTitle = Truncate(title, 500)!;
+        var safeAuthor = Truncate(author, 200)!;
+        var safeIsbn = Truncate(isbn, 20);
+        var safeCoverUrl = Truncate(coverImageUrl, 500);
+        var safeDescription = Truncate(description, 2000);
+        var safeSource = Truncate(source, 50);
+
+        // Serialize genres and ensure it fits in 1000 chars
+        string? genresJson = null;
+        if (genres is { Length: > 0 })
+        {
+            // Progressively drop items until JSON fits within limit
+            var genreList = genres.ToList();
+            genresJson = JsonSerializer.Serialize(genreList);
+            while (genresJson.Length > 1000 && genreList.Count > 0)
+            {
+                genreList.RemoveAt(genreList.Count - 1);
+                genresJson = JsonSerializer.Serialize(genreList);
+            }
+        }
+
         var book = new Book
         {
             Id = Guid.NewGuid(),
             UserId = userId,
-            Title = title,
-            Author = author,
-            Isbn = isbn,
-            CoverImageUrl = coverImageUrl,
-            Description = description,
-            Genres = genres != null ? JsonSerializer.Serialize(genres) : null,
+            Title = safeTitle,
+            Author = safeAuthor,
+            Isbn = safeIsbn,
+            CoverImageUrl = safeCoverUrl,
+            Description = safeDescription,
+            Genres = genresJson,
             PublicationDate = publicationDate.HasValue 
                 ? DateTime.SpecifyKind(publicationDate.Value, DateTimeKind.Utc)
                 : null,
             Status = status,
             AddedDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
-            Source = source,
+            Source = safeSource,
         };
 
         await _repo.AddAsync(book);
@@ -145,5 +169,12 @@ public class BookService : IBookService
     public async Task<bool> CheckDuplicateAsync(string userId, string title)
     {
         return await _repo.ExistsAsync(userId, title);
+    }
+
+    /// <summary>Truncates a string to a maximum length, returning null if input is null.</summary>
+    private static string? Truncate(string? value, int maxLength)
+    {
+        if (value is null) return null;
+        return value.Length <= maxLength ? value : value[..maxLength];
     }
 }

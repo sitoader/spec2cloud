@@ -3,13 +3,14 @@
 /**
  * BookTrackerRecommendationCard — individual recommendation tile.
  *
- * Displays a single AI-generated book recommendation with its title,
- * author, genre, explanation, confidence score, and action buttons.
+ * Displays a single AI-generated book recommendation with cover image,
+ * title, author, genre, explanation snippet, confidence score,
+ * and action buttons. Clickable to open full detail modal.
  */
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, Loader2 } from 'lucide-react';
+import { Check, X, Loader2, Eye } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -25,8 +26,10 @@ interface BookTrackerRecommendationCardProps {
   genre?: string;
   reason: string;
   confidenceScore: number;
+  coverImageUrl?: string;
   onAddToTbr: () => Promise<void>;
   onDismiss: () => void;
+  onViewDetails: () => void;
   isAdded?: boolean;
 }
 
@@ -40,8 +43,10 @@ export function BookTrackerRecommendationCard({
   genre,
   reason,
   confidenceScore,
+  coverImageUrl,
   onAddToTbr,
   onDismiss,
+  onViewDetails,
   isAdded = false,
 }: BookTrackerRecommendationCardProps): React.JSX.Element {
   const [isAdding, setIsAdding] = useState(false);
@@ -51,6 +56,9 @@ export function BookTrackerRecommendationCard({
     setIsAdding(true);
     try {
       await onAddToTbr();
+    } catch {
+      // Parent handles error display — swallow here to prevent
+      // unhandled rejection from reaching error boundary.
     } finally {
       setIsAdding(false);
     }
@@ -71,40 +79,65 @@ export function BookTrackerRecommendationCard({
       transition={{ duration: 0.3 }}
     >
       <Card className="overflow-hidden transition-shadow duration-200 hover:shadow-lg">
-        <CardHeader className="space-y-1 pb-3">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0 flex-1">
-              <h3 className="text-base font-semibold leading-tight">
-                {title}
-              </h3>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                By {author}
-              </p>
+        {/* Clickable area — opens detail modal */}
+        <button
+          type="button"
+          onClick={onViewDetails}
+          className="w-full cursor-pointer text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2"
+          aria-label={`View details for ${title}`}
+        >
+          {/* Cover image */}
+          {coverImageUrl && (
+            <div className="h-40 w-full overflow-hidden bg-zinc-100 dark:bg-zinc-700">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={coverImageUrl}
+                alt={`Cover of ${title}`}
+                className="h-full w-full object-cover"
+              />
             </div>
-            {genre && (
-              <Badge variant="secondary" className="shrink-0">
-                {genre}
-              </Badge>
-            )}
-          </div>
-        </CardHeader>
+          )}
 
-        <CardContent className="space-y-3">
-          {/* Confidence Score */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-zinc-500">Confidence:</span>
-            <BookTrackerRatingStars 
-              value={Math.round(confidenceScore)} 
-              readOnly 
-              size="sm"
-            />
-          </div>
+          <CardHeader className="space-y-1 pb-3">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h3 className="text-base font-semibold leading-tight">
+                  {title}
+                </h3>
+                <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                  By {author}
+                </p>
+              </div>
+              {genre && (
+                <Badge variant="secondary" className="shrink-0">
+                  {genre}
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
 
-          {/* Reason */}
-          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            {reason}
-          </p>
-        </CardContent>
+          <CardContent className="space-y-3">
+            {/* Confidence Score */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-zinc-500">Confidence:</span>
+              <BookTrackerRatingStars 
+                value={Math.round(confidenceScore)} 
+                readOnly 
+                size="sm"
+              />
+            </div>
+
+            {/* Reason — truncated */}
+            <p className="line-clamp-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+              {reason}
+            </p>
+
+            {/* View details hint */}
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-zinc-400 dark:text-zinc-500">
+              <Eye className="h-3 w-3" /> Click for details
+            </span>
+          </CardContent>
+        </button>
 
         <CardFooter className="flex items-center gap-3 pt-4">
           {isAdded ? (

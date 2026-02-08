@@ -23,7 +23,7 @@ public record BookSearchResult
     public required string Author { get; init; }
     public string? Isbn { get; init; }
     public string? CoverImageUrl { get; init; }
-    public string? Description { get; init; }
+    public string? Description { get; set; }
     public string[]? Genres { get; init; }
     public int? PublicationYear { get; init; }
     public required string Source { get; init; }

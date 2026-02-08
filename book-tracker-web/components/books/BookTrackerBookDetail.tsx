@@ -9,17 +9,18 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import BookTrackerStatusBadge from '@/components/books/BookTrackerStatusBadge';
 import BookTrackerConfirmDialog from '@/components/books/BookTrackerConfirmDialog';
-import { bookTrackerDeleteBook, bookTrackerUpdateBookStatus, bookTrackerBookReadableError } from '@/lib/api/books';
-import type { BookTrackerBook, BookTrackerBookStatus } from '@/types';
+import { bookTrackerDeleteBook, bookTrackerUpdateBookStatus, bookTrackerReadableError } from '@/lib/api/books';
+import type { BookTrackerBook } from '@/types';
+import { BookTrackerBookStatus } from '@/types';
 
 interface BookTrackerBookDetailProps {
   book: BookTrackerBook;
 }
 
 const STATUS_OPTIONS: { value: BookTrackerBookStatus; label: string }[] = [
-  { value: 'ToRead', label: 'To Read' },
-  { value: 'Reading', label: 'Reading' },
-  { value: 'Completed', label: 'Completed' },
+  { value: BookTrackerBookStatus.ToRead, label: 'To Read' },
+  { value: BookTrackerBookStatus.Reading, label: 'Reading' },
+  { value: BookTrackerBookStatus.Completed, label: 'Completed' },
 ];
 
 export default function BookTrackerBookDetail({
@@ -35,10 +36,10 @@ export default function BookTrackerBookDetail({
     async (newStatus: BookTrackerBookStatus): Promise<void> => {
       if (newStatus === book.status) return;
       try {
-        const updated = await bookTrackerUpdateBookStatus(book.id, { status: newStatus });
+        const updated = await bookTrackerUpdateBookStatus(book.id, newStatus);
         setBook(updated);
       } catch (err: unknown) {
-        setBanner(bookTrackerBookReadableError(err));
+        setBanner(bookTrackerReadableError(err));
       }
     },
     [book.id, book.status],
@@ -50,7 +51,7 @@ export default function BookTrackerBookDetail({
       await bookTrackerDeleteBook(book.id);
       router.push('/books');
     } catch (err: unknown) {
-      setBanner(bookTrackerBookReadableError(err));
+      setBanner(bookTrackerReadableError(err));
       setDeleting(false);
       setConfirmOpen(false);
     }
@@ -160,7 +161,7 @@ export default function BookTrackerBookDetail({
           <select
             value={book.status}
             onChange={(e): void => {
-              void handleStatusChange(e.target.value as BookTrackerBookStatus);
+              void handleStatusChange(Number(e.target.value) as BookTrackerBookStatus);
             }}
             className="rounded-md border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
             aria-label="Change book status"
