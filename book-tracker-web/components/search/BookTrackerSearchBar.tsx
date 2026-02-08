@@ -8,6 +8,9 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Search, X, Loader2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
 /* ------------------------------------------------------------------ */
 /*  Props                                                              */
@@ -80,48 +83,39 @@ export default function BookTrackerSearchBar({
 
   return (
     <div className="relative w-full" role="search" aria-label="Search external catalogues">
-      {/* Magnifying-glass icon */}
-      <span
-        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
-        aria-hidden="true"
-      >
-        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <circle cx="11" cy="11" r="7" />
-          <path d="M21 21l-4.35-4.35" strokeLinecap="round" />
-        </svg>
-      </span>
-
-      <input
+      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" aria-hidden="true" />
+      
+      <Input
         type="text"
         value={inputValue}
         onChange={handleTyping}
         placeholder={`Type at least ${minChars} characters to search…`}
         aria-label="Search books"
-        className="w-full rounded-lg border border-zinc-300 bg-white py-2.5 pl-10 pr-20 text-sm shadow-sm placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+        className="pl-10 pr-20"
       />
 
       {/* Right-side indicators */}
-      <span className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
+      <div className="absolute right-3 top-1/2 flex -translate-y-1/2 items-center gap-2">
         {isBusy && meetsThreshold && (
-          <span
-            className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-700 dark:border-zinc-600 dark:border-t-zinc-300"
+          <Loader2 
+            className="h-4 w-4 animate-spin text-zinc-500" 
             aria-label="Searching"
             role="status"
           />
         )}
         {inputValue.length > 0 && (
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon"
             onClick={clearInput}
             aria-label="Clear search"
-            className="rounded p-0.5 text-zinc-400 transition-colors hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
+            className="h-6 w-6"
           >
-            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" />
-            </svg>
-          </button>
+            <X className="h-4 w-4" />
+          </Button>
         )}
-      </span>
+      </div>
     </div>
   );
 }

@@ -4,8 +4,11 @@
  * BookTrackerRecommendationLoading — loading state displayed while
  * AI recommendations are being generated.
  *
- * Shows an animated spinner and a friendly message.
+ * Shows skeleton cards with shimmer effect and a friendly message.
  */
+
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 /* ------------------------------------------------------------------ */
 /*  Component implementation                                           */
@@ -13,19 +16,34 @@
 
 export function BookTrackerRecommendationLoading(): React.JSX.Element {
   return (
-    <div
-      className="flex min-h-[300px] items-center justify-center"
-      role="status"
-      aria-label="Generating recommendations"
-    >
+    <div role="status" aria-label="Generating recommendations" className="space-y-6">
       <div className="text-center">
-        <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-zinc-200 border-t-zinc-900 dark:border-zinc-800 dark:border-t-zinc-200" />
-        <p className="mt-4 text-base font-medium text-zinc-700 dark:text-zinc-300">
+        <p className="text-base font-medium text-zinc-700 dark:text-zinc-300">
           Discovering books you&apos;ll love...
         </p>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-500">
+        <p className="mt-1 text-sm text-zinc-500">
           This may take a few seconds
         </p>
+      </div>
+
+      {/* Skeleton Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, idx) => (
+          <Card key={idx} className="overflow-hidden">
+            <CardHeader className="space-y-2">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Skeleton className="h-4 w-1/4" />
+              <Skeleton className="h-16 w-full" />
+            </CardContent>
+            <CardFooter className="gap-2">
+              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-9 w-32" />
+            </CardFooter>
+          </Card>
+        ))}
       </div>
     </div>
   );

@@ -7,30 +7,43 @@
  */
 
 import { useState, useCallback } from 'react';
+import { Save, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 /* ------------------------------------------------------------------ */
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const AVAILABLE_GENRES = [
+const FICTION_GENRES = [
   'Fiction',
-  'Non-Fiction',
   'Science Fiction',
   'Fantasy',
   'Mystery',
   'Thriller',
   'Romance',
   'Horror',
+  'Drama',
+  'Adventure',
+  'Young Adult',
+  'Children',
+] as const;
+
+const NONFICTION_GENRES = [
+  'Non-Fiction',
   'Biography',
   'History',
   'Self-Help',
   'Science',
   'Technology',
+] as const;
+
+const OTHER_GENRES = [
   'Poetry',
-  'Drama',
-  'Adventure',
-  'Young Adult',
-  'Children',
 ] as const;
 
 /* ------------------------------------------------------------------ */
@@ -90,78 +103,136 @@ export default function BookTrackerPreferencesForm({
     <div className="space-y-6">
       {/* Genres */}
       <div>
-        <h3 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        <h3 className="mb-3 text-sm font-semibold">
           Preferred Genres
         </h3>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
-          {AVAILABLE_GENRES.map((genre) => (
-            <label
-              key={genre}
-              className="flex items-center gap-2 rounded-md border border-zinc-200 px-3 py-2 text-sm transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
-            >
-              <input
-                type="checkbox"
-                checked={selectedGenres.includes(genre)}
-                onChange={(): void => handleGenreToggle(genre)}
-                className="h-4 w-4 rounded border-zinc-300 text-zinc-900 focus:ring-zinc-500 dark:border-zinc-600"
-              />
-              <span className="text-zinc-700 dark:text-zinc-300">{genre}</span>
-            </label>
-          ))}
-        </div>
+        <Tabs defaultValue="fiction" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="fiction">Fiction</TabsTrigger>
+            <TabsTrigger value="nonfiction">Non-Fiction</TabsTrigger>
+            <TabsTrigger value="other">Other</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="fiction" className="mt-4 space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {FICTION_GENRES.map((genre) => (
+                <div key={genre} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`genre-${genre}`}
+                    checked={selectedGenres.includes(genre)}
+                    onCheckedChange={(): void => handleGenreToggle(genre)}
+                  />
+                  <Label 
+                    htmlFor={`genre-${genre}`}
+                    className="cursor-pointer text-sm font-normal"
+                  >
+                    {genre}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="nonfiction" className="mt-4 space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {NONFICTION_GENRES.map((genre) => (
+                <div key={genre} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`genre-${genre}`}
+                    checked={selectedGenres.includes(genre)}
+                    onCheckedChange={(): void => handleGenreToggle(genre)}
+                  />
+                  <Label 
+                    htmlFor={`genre-${genre}`}
+                    className="cursor-pointer text-sm font-normal"
+                  >
+                    {genre}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="other" className="mt-4 space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {OTHER_GENRES.map((genre) => (
+                <div key={genre} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`genre-${genre}`}
+                    checked={selectedGenres.includes(genre)}
+                    onCheckedChange={(): void => handleGenreToggle(genre)}
+                  />
+                  <Label 
+                    htmlFor={`genre-${genre}`}
+                    className="cursor-pointer text-sm font-normal"
+                  >
+                    {genre}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
+      <Separator />
+
       {/* Themes */}
-      <div>
-        <label
-          htmlFor="pref-themes"
-          className="mb-1 block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
-        >
+      <div className="space-y-2">
+        <Label htmlFor="pref-themes" className="text-sm font-semibold">
           Preferred Themes / Topics
-        </label>
-        <input
+        </Label>
+        <Input
           id="pref-themes"
           type="text"
           value={themes}
           onChange={(e): void => setThemes(e.target.value)}
           placeholder="e.g. time travel, coming of age, dystopia"
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
-        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Separate multiple themes with commas
         </p>
       </div>
 
+      <Separator />
+
       {/* Authors */}
-      <div>
-        <label
-          htmlFor="pref-authors"
-          className="mb-1 block text-sm font-semibold text-zinc-700 dark:text-zinc-300"
-        >
+      <div className="space-y-2">
+        <Label htmlFor="pref-authors" className="text-sm font-semibold">
           Favorite Authors
-        </label>
-        <input
+        </Label>
+        <Input
           id="pref-authors"
           type="text"
           value={authors}
           onChange={(e): void => setAuthors(e.target.value)}
           placeholder="e.g. Brandon Sanderson, Ursula K. Le Guin"
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm text-zinc-900 placeholder-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder-zinc-500"
         />
-        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Separate multiple authors with commas
         </p>
       </div>
 
       {/* Save button */}
-      <button
-        type="button"
-        onClick={handleSave}
-        disabled={saving}
-        className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
-      >
-        {saving ? 'Saving…' : 'Save Preferences'}
-      </button>
+      <div className="flex justify-end pt-4">
+        <Button
+          onClick={handleSave}
+          disabled={saving}
+          size="lg"
+        >
+          {saving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Saving…
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              Save Preferences
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }

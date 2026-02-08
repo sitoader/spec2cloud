@@ -7,8 +7,8 @@ export default function Home(): React.JSX.Element {
       <header className="border-b border-zinc-200 bg-white/80 backdrop-blur-sm dark:border-zinc-700 dark:bg-zinc-900/80">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-              📚 Book Tracker
+            <h1 className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
+              📚 BookTracker
             </h1>
             <div className="flex gap-4">
               <Link

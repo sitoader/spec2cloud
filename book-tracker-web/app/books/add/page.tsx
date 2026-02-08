@@ -6,6 +6,7 @@
  */
 
 import { BookTrackerAddBookForm } from '@/components/books/AddBookForm';
+import { BookTrackerHeader } from '@/components/layout/Header';
 
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
@@ -13,7 +14,9 @@ import { BookTrackerAddBookForm } from '@/components/books/AddBookForm';
 
 export default function BookTrackerAddBookPage(): React.JSX.Element {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
+    <>
+      <BookTrackerHeader />
+      <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100">
           Add New Book
@@ -26,6 +29,7 @@ export default function BookTrackerAddBookPage(): React.JSX.Element {
       <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <BookTrackerAddBookForm />
       </div>
-    </div>
+      </div>
+    </>
   );
 }

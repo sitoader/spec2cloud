@@ -15,8 +15,8 @@ import type { ReactNode } from 'react';
 function BookTrackerAuthNav(): React.JSX.Element {
   return (
     <nav className="border-b border-zinc-200 bg-white/80 backdrop-blur-sm dark:border-zinc-700 dark:bg-zinc-900/80">
-      <div className="container mx-auto flex items-center justify-between px-4 py-3">
-        <Link href="/" className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
+      <div className="container mx-auto flex items-center justify-between px-4 py-4">
+        <Link href="/" className="text-xl font-bold text-zinc-900 dark:text-zinc-100">
           📚 BookTracker
         </Link>
         <div className="flex gap-3 text-sm">

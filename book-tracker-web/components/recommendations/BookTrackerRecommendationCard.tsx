@@ -8,6 +8,12 @@
  */
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Check, X, Loader2 } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import BookTrackerRatingStars from '@/components/ratings/BookTrackerRatingStars';
 
 /* ------------------------------------------------------------------ */
 /*  Interface declarations                                             */
@@ -22,31 +28,6 @@ interface BookTrackerRecommendationCardProps {
   onAddToTbr: () => Promise<void>;
   onDismiss: () => void;
   isAdded?: boolean;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
-/* ------------------------------------------------------------------ */
-
-function renderConfidenceStars(score: number): React.JSX.Element {
-  const stars: React.JSX.Element[] = [];
-  const clamped = Math.max(1, Math.min(5, Math.round(score)));
-  for (let i = 1; i <= 5; i++) {
-    stars.push(
-      <span
-        key={i}
-        className={i <= clamped ? 'text-yellow-400' : 'text-zinc-300 dark:text-zinc-600'}
-        aria-hidden="true"
-      >
-        ★
-      </span>,
-    );
-  }
-  return (
-    <span aria-label={`Confidence: ${clamped} out of 5`} className="text-lg">
-      {stars}
-    </span>
-  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -83,60 +64,76 @@ export function BookTrackerRecommendationCard({
   if (isDismissed) return <></>;
 
   return (
-    <article className="flex flex-col rounded-lg border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-      {/* Header */}
-      <div className="mb-3 flex items-start justify-between gap-2">
-        <div className="min-w-0 flex-1">
-          <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-            {title}
-          </h3>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            By {author}
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card className="overflow-hidden transition-shadow duration-200 hover:shadow-lg">
+        <CardHeader className="space-y-1 pb-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              <h3 className="text-base font-semibold leading-tight">
+                {title}
+              </h3>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                By {author}
+              </p>
+            </div>
+            {genre && (
+              <Badge variant="secondary" className="shrink-0">
+                {genre}
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+
+        <CardContent className="space-y-3">
+          {/* Confidence Score */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-zinc-500">Confidence:</span>
+            <BookTrackerRatingStars 
+              value={Math.round(confidenceScore)} 
+              readOnly 
+              size="sm"
+            />
+          </div>
+
+          {/* Reason */}
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            {reason}
           </p>
-        </div>
-        {genre && (
-          <span className="shrink-0 rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
-            {genre}
-          </span>
-        )}
-      </div>
+        </CardContent>
 
-      {/* Confidence */}
-      <div className="mb-3">{renderConfidenceStars(confidenceScore)}</div>
-
-      {/* Reason */}
-      <p className="mb-4 flex-1 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-        {reason}
-      </p>
-
-      {/* Actions */}
-      <div className="flex items-center gap-3">
-        {isAdded ? (
-          <span className="inline-flex items-center gap-1 rounded-md bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400">
-            ✓ Added
-          </span>
-        ) : (
-          <button
-            type="button"
-            onClick={(): void => {
-              void handleAdd();
-            }}
-            disabled={isAdding}
-            className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-200 dark:text-zinc-900 dark:hover:bg-zinc-300"
-          >
-            {isAdding ? 'Adding...' : 'Add to TBR'}
-          </button>
-        )}
-        {!isAdded && (
-          <button
-            type="button"
-            onClick={handleDismiss}
-            className="text-sm text-zinc-500 transition-colors hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-          >
-            Not Interested
-          </button>
-        )}
-      </div>
-    </article>
+        <CardFooter className="flex items-center gap-3 pt-4">
+          {isAdded ? (
+            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+              <Check className="mr-1 h-3 w-3" />
+              Added
+            </Badge>
+          ) : (
+            <>
+              <Button
+                onClick={(): void => { void handleAdd(); }}
+                disabled={isAdding}
+                size="sm"
+              >
+                {isAdding && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isAdding ? 'Adding...' : 'Add to TBR'}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDismiss}
+              >
+                <X className="mr-1 h-4 w-4" />
+                Not Interested
+              </Button>
+            </>
+          )}
+        </CardFooter>
+      </Card>
+    </motion.div>
   );
 }

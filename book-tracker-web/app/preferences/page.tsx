@@ -19,6 +19,7 @@ import type {
   BookTrackerUserPreferences,
   BookTrackerBook,
 } from '@/types';
+import { BookTrackerHeader } from '@/components/layout/Header';
 
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
@@ -76,7 +77,9 @@ export default function BookTrackerPreferencesPage(): React.JSX.Element {
   );
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
+    <>
+      <BookTrackerHeader />
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
       <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
         Reading Preferences
       </h1>
@@ -131,6 +134,7 @@ export default function BookTrackerPreferencesPage(): React.JSX.Element {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

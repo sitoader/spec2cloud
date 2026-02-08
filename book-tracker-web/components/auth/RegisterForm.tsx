@@ -9,6 +9,9 @@
 
 import { type FormEvent, useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { Mail, Lock, User, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useBookTrackerIdentity } from '@/lib/contexts/AuthContext';
 import {
   bookTrackerSignupFormSchema,
@@ -17,6 +20,9 @@ import {
   type BookTrackerPasswordVerdict,
 } from '@/lib/validations/auth';
 import { bookTrackerReadableError } from '@/lib/api/auth';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 /* ------------------------------------------------------------------ */
 /*  Internal strength gauge                                            */
@@ -76,7 +82,6 @@ export default function BookTrackerRegistrationPanel(): React.JSX.Element {
 
   const [draft, setDraft] = useState<RegistrationDraft>(BLANK_DRAFT);
   const [fieldNotes, setFieldNotes] = useState<Partial<Record<keyof BookTrackerSignupFormData, string>>>({});
-  const [banner, setBanner] = useState<string>('');
   const [working, setWorking] = useState<boolean>(false);
 
   const passwordVerdict = rateBookTrackerPassword(draft.password);
@@ -98,7 +103,6 @@ export default function BookTrackerRegistrationPanel(): React.JSX.Element {
   const handleSubmit = useCallback(
     async (evt: FormEvent<HTMLFormElement>): Promise<void> => {
       evt.preventDefault();
-      setBanner('');
       setFieldNotes({});
 
       const parsed = bookTrackerSignupFormSchema.safeParse(draft);
@@ -121,9 +125,10 @@ export default function BookTrackerRegistrationPanel(): React.JSX.Element {
           password: parsed.data.password,
           displayName: parsed.data.displayName || undefined,
         });
+        toast.success('Account created successfully! Welcome to BookTracker.');
         router.push('/books');
       } catch (err: unknown) {
-        setBanner(bookTrackerReadableError(err));
+        toast.error(bookTrackerReadableError(err));
       } finally {
         setWorking(false);
       }
@@ -139,52 +144,52 @@ export default function BookTrackerRegistrationPanel(): React.JSX.Element {
       className="space-y-6"
       aria-label="BookTracker registration form"
     >
-      {banner && (
-        <div
-          role="alert"
-          className="rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-950 dark:text-red-300"
-        >
-          {banner}
-        </div>
-      )}
-
       {/* Identity fields */}
       <fieldset className="space-y-4" disabled={working}>
         <legend className="sr-only">Account details</legend>
 
         <div>
-          <label htmlFor="bt-reg-email" className="mb-1 block text-sm font-medium">
-            Email
-          </label>
-          <input
-            id="bt-reg-email"
-            type="email"
-            autoComplete="email"
-            value={draft.email}
-            onChange={(e): void => patchDraft('email', e.target.value)}
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800"
-            aria-invalid={!!fieldNotes.email}
-            aria-describedby={fieldNotes.email ? 'bt-reg-email-err' : undefined}
-          />
+          <Label htmlFor="bt-reg-email">Email</Label>
+          <div className="relative mt-1">
+            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+            <Input
+              id="bt-reg-email"
+              type="email"
+              autoComplete="email"
+              value={draft.email}
+              onChange={(e): void => patchDraft('email', e.target.value)}
+              className="pl-10"
+              aria-invalid={!!fieldNotes.email}
+              aria-describedby={fieldNotes.email ? 'bt-reg-email-err' : undefined}
+            />
+          </div>
           {fieldNotes.email && (
-            <p id="bt-reg-email-err" className="mt-1 text-xs text-red-600 dark:text-red-400">
+            <motion.p
+              id="bt-reg-email-err"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-1 text-xs text-red-600 dark:text-red-400"
+            >
               {fieldNotes.email}
-            </p>
+            </motion.p>
           )}
         </div>
 
         <div>
-          <label htmlFor="bt-reg-display" className="mb-1 block text-sm font-medium">
+          <Label htmlFor="bt-reg-display">
             Display name <span className="text-zinc-400">(optional)</span>
-          </label>
-          <input
-            id="bt-reg-display"
-            type="text"
-            autoComplete="name"
-            value={draft.displayName}
-            onChange={(e): void => patchDraft('displayName', e.target.value)}
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800"
-          />
+          </Label>
+          <div className="relative mt-1">
+            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+            <Input
+              id="bt-reg-display"
+              type="text"
+              autoComplete="name"
+              value={draft.displayName}
+              onChange={(e): void => patchDraft('displayName', e.target.value)}
+              className="pl-10"
+            />
+          </div>
         </div>
       </fieldset>
 
@@ -193,56 +198,65 @@ export default function BookTrackerRegistrationPanel(): React.JSX.Element {
         <legend className="sr-only">Password</legend>
 
         <div>
-          <label htmlFor="bt-reg-password" className="mb-1 block text-sm font-medium">
-            Password
-          </label>
-          <input
-            id="bt-reg-password"
-            type="password"
-            autoComplete="new-password"
-            value={draft.password}
-            onChange={(e): void => patchDraft('password', e.target.value)}
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800"
-            aria-invalid={!!fieldNotes.password}
-            aria-describedby={fieldNotes.password ? 'bt-reg-password-err' : undefined}
-          />
+          <Label htmlFor="bt-reg-password">Password</Label>
+          <div className="relative mt-1">
+            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+            <Input
+              id="bt-reg-password"
+              type="password"
+              autoComplete="new-password"
+              value={draft.password}
+              onChange={(e): void => patchDraft('password', e.target.value)}
+              className="pl-10"
+              aria-invalid={!!fieldNotes.password}
+              aria-describedby={fieldNotes.password ? 'bt-reg-password-err' : undefined}
+            />
+          </div>
           {fieldNotes.password && (
-            <p id="bt-reg-password-err" className="mt-1 text-xs text-red-600 dark:text-red-400">
+            <motion.p
+              id="bt-reg-password-err"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-1 text-xs text-red-600 dark:text-red-400"
+            >
               {fieldNotes.password}
-            </p>
+            </motion.p>
           )}
           {draft.password.length > 0 && <StrengthGauge verdict={passwordVerdict} />}
         </div>
 
         <div>
-          <label htmlFor="bt-reg-confirm" className="mb-1 block text-sm font-medium">
-            Confirm password
-          </label>
-          <input
-            id="bt-reg-confirm"
-            type="password"
-            autoComplete="new-password"
-            value={draft.confirmPassword}
-            onChange={(e): void => patchDraft('confirmPassword', e.target.value)}
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-800"
-            aria-invalid={!!fieldNotes.confirmPassword}
-            aria-describedby={fieldNotes.confirmPassword ? 'bt-reg-confirm-err' : undefined}
-          />
+          <Label htmlFor="bt-reg-confirm">Confirm password</Label>
+          <div className="relative mt-1">
+            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+            <Input
+              id="bt-reg-confirm"
+              type="password"
+              autoComplete="new-password"
+              value={draft.confirmPassword}
+              onChange={(e): void => patchDraft('confirmPassword', e.target.value)}
+              className="pl-10"
+              aria-invalid={!!fieldNotes.confirmPassword}
+              aria-describedby={fieldNotes.confirmPassword ? 'bt-reg-confirm-err' : undefined}
+            />
+          </div>
           {fieldNotes.confirmPassword && (
-            <p id="bt-reg-confirm-err" className="mt-1 text-xs text-red-600 dark:text-red-400">
+            <motion.p
+              id="bt-reg-confirm-err"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-1 text-xs text-red-600 dark:text-red-400"
+            >
               {fieldNotes.confirmPassword}
-            </p>
+            </motion.p>
           )}
         </div>
       </fieldset>
 
-      <button
-        type="submit"
-        disabled={working}
-        className="w-full rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-200 dark:text-zinc-900 dark:hover:bg-zinc-300"
-      >
+      <Button type="submit" disabled={working} className="w-full">
+        {working && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         {working ? 'Creating account…' : 'Create BookTracker account'}
-      </button>
+      </Button>
     </form>
   );
 }

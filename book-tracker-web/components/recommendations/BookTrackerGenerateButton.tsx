@@ -7,6 +7,9 @@
  * request is in progress.
  */
 
+import { Sparkles, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
 /* ------------------------------------------------------------------ */
 /*  Interface declarations                                             */
 /* ------------------------------------------------------------------ */
@@ -28,26 +31,27 @@ export function BookTrackerGenerateButton({
   isDisabled = false,
   hasExistingRecommendations,
 }: BookTrackerGenerateButtonProps): React.JSX.Element {
-  const label = hasExistingRecommendations ? 'Refresh Recommendations' : 'Get Recommendations';
+  const label = hasExistingRecommendations ? 'Refresh Recommendations' : 'Get AI Recommendations';
 
   return (
-    <button
+    <Button
       type="button"
+      size="lg"
       onClick={onClick}
       disabled={isGenerating || isDisabled}
-      className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-zinc-200 dark:text-zinc-900 dark:hover:bg-zinc-300"
+      className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white shadow-lg transition-all duration-200"
     >
       {isGenerating ? (
         <>
-          <span
-            className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent dark:border-zinc-900 dark:border-t-transparent"
-            aria-hidden="true"
-          />
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           Generating...
         </>
       ) : (
-        label
+        <>
+          <Sparkles className="mr-2 h-5 w-5" />
+          {label}
+        </>
       )}
-    </button>
+    </Button>
   );
 }

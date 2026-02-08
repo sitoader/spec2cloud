@@ -8,6 +8,9 @@
  */
 
 import { useState, useCallback } from 'react';
+import { Star } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 /* ------------------------------------------------------------------ */
 /*  Interface declarations                                             */
@@ -20,6 +23,8 @@ interface BookTrackerRatingStarsProps {
   onChange?: (score: number) => void;
   /** If true, stars are not interactive. */
   readOnly?: boolean;
+  /** Size variant of the stars. */
+  size?: 'sm' | 'md' | 'lg';
 }
 
 /* ------------------------------------------------------------------ */
@@ -30,6 +35,7 @@ export default function BookTrackerRatingStars({
   value,
   onChange,
   readOnly = false,
+  size = 'md',
 }: BookTrackerRatingStarsProps): React.JSX.Element {
   const [hoverValue, setHoverValue] = useState(0);
 
@@ -58,6 +64,12 @@ export default function BookTrackerRatingStars({
   const displayValue = hoverValue || value;
   const interactive = !readOnly && !!onChange;
 
+  const sizeClasses = {
+    sm: 'h-4 w-4',
+    md: 'h-5 w-5',
+    lg: 'h-6 w-6',
+  };
+
   return (
     <div
       className="inline-flex gap-0.5"
@@ -70,7 +82,7 @@ export default function BookTrackerRatingStars({
         const filled = star <= displayValue;
 
         return (
-          <button
+          <motion.button
             key={star}
             type="button"
             role="radio"
@@ -79,18 +91,23 @@ export default function BookTrackerRatingStars({
             disabled={!interactive}
             onClick={(): void => handleClick(star)}
             onMouseEnter={(): void => handleMouseEnter(star)}
-            className={`text-xl transition-colors ${
-              interactive
-                ? 'cursor-pointer hover:scale-110'
-                : 'cursor-default'
-            } ${
-              filled
-                ? 'text-amber-400'
-                : 'text-zinc-300 dark:text-zinc-600'
-            } disabled:cursor-default`}
+            whileHover={interactive ? { scale: 1.1 } : {}}
+            whileTap={interactive ? { scale: 0.9 } : {}}
+            className={cn(
+              'transition-colors disabled:cursor-default',
+              interactive && 'cursor-pointer',
+            )}
           >
-            ★
-          </button>
+            <Star
+              className={cn(
+                sizeClasses[size],
+                'transition-all duration-200',
+                filled
+                  ? 'fill-yellow-400 text-yellow-400'
+                  : 'fill-none text-zinc-300 dark:text-zinc-600',
+              )}
+            />
+          </motion.button>
         );
       })}
     </div>

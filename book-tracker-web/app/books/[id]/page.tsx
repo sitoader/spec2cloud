@@ -17,6 +17,7 @@ import BookTrackerRatingForm from '@/components/ratings/BookTrackerRatingForm';
 import BookTrackerNotesDisplay from '@/components/ratings/BookTrackerNotesDisplay';
 import BookTrackerRatingStars from '@/components/ratings/BookTrackerRatingStars';
 import { bookTrackerAddOrUpdateRating, bookTrackerDeleteRating } from '@/lib/api/ratings';
+import { BookTrackerHeader } from '@/components/layout/Header';
 
 /* ------------------------------------------------------------------ */
 /*  Page component                                                     */
@@ -91,7 +92,9 @@ export default function BookTrackerBookDetailPage(): React.JSX.Element {
   }, [publication]);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <>
+      <BookTrackerHeader />
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Loading state */}
       {isFetching && (
         <div className="flex min-h-[400px] items-center justify-center">
@@ -182,6 +185,7 @@ export default function BookTrackerBookDetailPage(): React.JSX.Element {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }

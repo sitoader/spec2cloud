@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { BookTrackerIdentityGate } from '@/lib/contexts/AuthContext';
+import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
         <BookTrackerIdentityGate>
           {children}
         </BookTrackerIdentityGate>
+        <Toaster position="top-right" />
       </body>
     </html>
   );

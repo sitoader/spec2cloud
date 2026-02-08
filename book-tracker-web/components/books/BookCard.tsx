@@ -9,8 +9,11 @@
 
 import { useMemo } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import type { BookTrackerBook } from '@/types';
 import { BookTrackerStatusBadge } from './StatusBadge';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 /* ------------------------------------------------------------------ */
 /*  Interface declarations                                             */
@@ -79,14 +82,19 @@ export function BookTrackerBookCard({
   );
 
   return (
-    <article
-      className="group relative flex flex-col overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm transition-shadow duration-200 hover:shadow-xl dark:border-zinc-800 dark:bg-zinc-900"
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      whileHover={{ y: -8, transition: { duration: 0.2 } }}
+      className="group relative flex flex-col"
       aria-labelledby={`bt-book-title-${publication.id}`}
     >
-      <Link
-        href={`/books/${publication.id}`}
-        className="flex flex-col focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
-      >
+      <Card className="flex h-full flex-col overflow-hidden transition-shadow duration-200 hover:shadow-xl">
+        <Link
+          href={`/books/${publication.id}`}
+          className="flex flex-col focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+        >
         <div className="relative aspect-[2/3] overflow-hidden bg-zinc-100 dark:bg-zinc-800">
           {publication.coverImageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -128,17 +136,15 @@ export function BookTrackerBookCard({
           {pipeline.categoryTags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 pt-1">
               {pipeline.categoryTags.map((tag, idx) => (
-                <span
-                  key={`${tag}-${idx}`}
-                  className="rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                >
+                <Badge key={`${tag}-${idx}`} variant="secondary" className="text-xs">
                   {tag}
-                </span>
+                </Badge>
               ))}
             </div>
           )}
         </div>
       </Link>
-    </article>
+      </Card>
+    </motion.article>
   );
 }
