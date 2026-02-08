@@ -190,3 +190,256 @@ export interface BookTrackerRecommendationsResponse {
   generatedAt: string;
   booksAnalyzed: number;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Reading progress types                                             */
+/* ------------------------------------------------------------------ */
+
+/** DTO for a reading session. */
+export interface BookTrackerReadingSession {
+  id: string;
+  bookId: string;
+  startTime: string;
+  endTime?: string;
+  pagesRead?: number;
+  currentPage?: number;
+  notes?: string;
+  createdAt: string;
+}
+
+/** Request payload for logging a reading session. */
+export interface BookTrackerLogSessionPayload {
+  bookId: string;
+  startTime: string;
+  endTime?: string;
+  pagesRead?: number;
+  currentPage?: number;
+  notes?: string;
+}
+
+/** DTO for reading progress. */
+export interface BookTrackerReadingProgress {
+  id: string;
+  bookId: string;
+  totalPages?: number;
+  currentPage: number;
+  progressPercentage: number;
+  estimatedCompletionDate?: string;
+  lastUpdated: string;
+}
+
+/** Request payload for updating reading progress. */
+export interface BookTrackerUpdateProgressPayload {
+  currentPage: number;
+  totalPages?: number;
+}
+
+/** DTO for reading streak. */
+export interface BookTrackerReadingStreak {
+  currentStreak: number;
+  longestStreak: number;
+  lastReadDate?: string;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Goals & achievements types                                         */
+/* ------------------------------------------------------------------ */
+
+/** DTO for a reading goal. */
+export interface BookTrackerReadingGoal {
+  id: string;
+  year: number;
+  targetBooksCount: number;
+  completedBooksCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Request payload for setting a reading goal. */
+export interface BookTrackerSetGoalPayload {
+  year: number;
+  targetBooksCount: number;
+}
+
+/** DTO for an achievement. */
+export interface BookTrackerAchievement {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  iconUrl?: string;
+  category?: string;
+  requirementValue?: number;
+}
+
+/** DTO for a user achievement. */
+export interface BookTrackerUserAchievement {
+  id: string;
+  achievement?: BookTrackerAchievement;
+  unlockedAt: string;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Statistics types                                                    */
+/* ------------------------------------------------------------------ */
+
+/** DTO for statistics overview. */
+export interface BookTrackerStatisticsOverview {
+  totalBooks: number;
+  booksThisYear: number;
+  booksThisMonth: number;
+  averageRating: number;
+  totalPagesRead: number;
+  currentStreak: number;
+}
+
+/** DTO for monthly book count. */
+export interface BookTrackerMonthlyCount {
+  month: number;
+  count: number;
+}
+
+/** DTO for genre distribution. */
+export interface BookTrackerGenreCount {
+  genre: string;
+  count: number;
+}
+
+/** DTO for author count. */
+export interface BookTrackerAuthorCount {
+  author: string;
+  count: number;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Collection types                                                    */
+/* ------------------------------------------------------------------ */
+
+/** DTO for a collection. */
+export interface BookTrackerCollection {
+  id: string;
+  name: string;
+  description?: string;
+  isPublic: boolean;
+  bookCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Request payload for creating a collection. */
+export interface BookTrackerCreateCollectionPayload {
+  name: string;
+  description?: string;
+  isPublic: boolean;
+}
+
+/** Request payload for updating a collection. */
+export interface BookTrackerUpdateCollectionPayload {
+  name?: string;
+  description?: string;
+  isPublic?: boolean;
+}
+
+/** Request payload for adding a book to a collection. */
+export interface BookTrackerAddBookToCollectionPayload {
+  bookId: string;
+  notes?: string;
+}
+
+/** DTO for a collection book entry. */
+export interface BookTrackerCollectionBook {
+  id: string;
+  bookId: string;
+  addedAt: string;
+  notes?: string;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Enhanced review types                                               */
+/* ------------------------------------------------------------------ */
+
+/** DTO for a book review. */
+export interface BookTrackerBookReview {
+  id: string;
+  userId: string;
+  bookId: string;
+  rating: number;
+  reviewText?: string;
+  reviewHtml?: string;
+  isPublic: boolean;
+  tags?: string[];
+  mood?: string;
+  wouldRecommend?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Request payload for creating a review. */
+export interface BookTrackerCreateReviewPayload {
+  bookId: string;
+  rating: number;
+  reviewText?: string;
+  reviewHtml?: string;
+  isPublic: boolean;
+  tags?: string[];
+  mood?: string;
+  wouldRecommend?: boolean;
+}
+
+/** Request payload for updating a review. */
+export interface BookTrackerUpdateReviewPayload {
+  rating?: number;
+  reviewText?: string;
+  reviewHtml?: string;
+  isPublic?: boolean;
+  tags?: string[];
+  mood?: string;
+  wouldRecommend?: boolean;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Series types                                                        */
+/* ------------------------------------------------------------------ */
+
+/** DTO for a book series. */
+export interface BookTrackerBookSeries {
+  id: string;
+  name: string;
+  totalBooks?: number;
+  description?: string;
+  entries: BookTrackerBookSeriesEntry[];
+  createdAt: string;
+}
+
+/** DTO for a series entry. */
+export interface BookTrackerBookSeriesEntry {
+  id: string;
+  bookId: string;
+  positionInSeries: number;
+}
+
+/** Request payload for creating a series. */
+export interface BookTrackerCreateSeriesPayload {
+  name: string;
+  description?: string;
+  totalBooks?: number;
+  books: { bookId: string; position: number }[];
+}
+
+/* ------------------------------------------------------------------ */
+/*  Author following types                                              */
+/* ------------------------------------------------------------------ */
+
+/** DTO for a followed author. */
+export interface BookTrackerFollowedAuthor {
+  id: string;
+  authorName: string;
+  followedAt: string;
+  notificationsEnabled: boolean;
+}
+
+/** Request payload for following an author. */
+export interface BookTrackerFollowAuthorPayload {
+  authorName: string;
+  notificationsEnabled: boolean;
+}
