@@ -9,8 +9,7 @@ using BookTracker.Core.Models;
 using BookTracker.Core.Repositories;
 using BookTracker.Core.Services;
 using BookTracker.Infrastructure.Data;
-using BookTracker.Infrastructure.Repositories;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using BookTracker.Infrastructure.Repositories;using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -83,10 +82,26 @@ try
     builder.Services.AddScoped<IBookRepository, BookRepository>();
     builder.Services.AddScoped<IRatingRepository, RatingRepository>();
     builder.Services.AddScoped<IPreferencesRepository, PreferencesRepository>();
+    builder.Services.AddScoped<IReadingSessionRepository, ReadingSessionRepository>();
+    builder.Services.AddScoped<IReadingProgressRepository, ReadingProgressRepository>();
+    builder.Services.AddScoped<IReadingStreakRepository, ReadingStreakRepository>();
+    builder.Services.AddScoped<IReadingGoalRepository, ReadingGoalRepository>();
+    builder.Services.AddScoped<IAchievementRepository, AchievementRepository>();
+    builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
+    builder.Services.AddScoped<IBookReviewRepository, BookReviewRepository>();
+    builder.Services.AddScoped<IBookSeriesRepository, BookSeriesRepository>();
+    builder.Services.AddScoped<IFollowedAuthorRepository, FollowedAuthorRepository>();
     builder.Services.AddScoped<IBookService, BookService>();
     builder.Services.AddScoped<IRatingService, RatingService>();
     builder.Services.AddScoped<IPreferencesService, PreferencesService>();
     builder.Services.AddScoped<IBookSearchService, BookSearchService>();
+    builder.Services.AddScoped<IReadingProgressService, ReadingProgressService>();
+    builder.Services.AddScoped<IGoalsService, GoalsService>();
+    builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+    builder.Services.AddScoped<ICollectionService, CollectionService>();
+    builder.Services.AddScoped<IBookReviewService, BookReviewService>();
+    builder.Services.AddScoped<ISeriesService, SeriesService>();
+    builder.Services.AddScoped<IAuthorFollowService, AuthorFollowService>();
     builder.Services.AddScoped<IAiChatClient, AzureOpenAiChatClient>();
     builder.Services.AddScoped<IRecommendationService, RecommendationService>();
     builder.Services.AddMemoryCache();
@@ -236,6 +251,10 @@ try
                     BookTracker.Core.Exceptions.AuthenticationException => StatusCodes.Status401Unauthorized,
                     BookTracker.Core.Exceptions.BookNotFoundException => StatusCodes.Status404NotFound,
                     BookTracker.Core.Exceptions.BookAccessDeniedException => StatusCodes.Status403Forbidden,
+                    BookTracker.Core.Exceptions.CollectionNotFoundException => StatusCodes.Status404NotFound,
+                    BookTracker.Core.Exceptions.CollectionAccessDeniedException => StatusCodes.Status403Forbidden,
+                    BookTracker.Core.Exceptions.ReviewNotFoundException => StatusCodes.Status404NotFound,
+                    BookTracker.Core.Exceptions.SeriesNotFoundException => StatusCodes.Status404NotFound,
                     ArgumentException => StatusCodes.Status400BadRequest,
                     UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
                     KeyNotFoundException => StatusCodes.Status404NotFound,
@@ -308,6 +327,27 @@ try
 
     // Map recommendation endpoints
     app.MapRecommendationEndpoints();
+
+    // Map reading progress endpoints
+    app.MapReadingProgressEndpoints();
+
+    // Map goals & achievements endpoints
+    app.MapGoalsEndpoints();
+
+    // Map statistics endpoints
+    app.MapStatisticsEndpoints();
+
+    // Map collection endpoints
+    app.MapCollectionEndpoints();
+
+    // Map review endpoints
+    app.MapReviewEndpoints();
+
+    // Map series endpoints
+    app.MapSeriesEndpoints();
+
+    // Map author endpoints
+    app.MapAuthorEndpoints();
 
     app.Run();
 
