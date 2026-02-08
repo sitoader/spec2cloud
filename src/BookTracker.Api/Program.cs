@@ -89,23 +89,6 @@ try
     builder.Services.AddScoped<IBookSearchService, BookSearchService>();
     builder.Services.AddScoped<IAiChatClient, AzureOpenAiChatClient>();
     builder.Services.AddScoped<IRecommendationService, RecommendationService>();
-    builder.Services.AddScoped<IReadingSessionRepository, ReadingSessionRepository>();
-    builder.Services.AddScoped<IReadingProgressRepository, ReadingProgressRepository>();
-    builder.Services.AddScoped<IReadingStreakRepository, ReadingStreakRepository>();
-    builder.Services.AddScoped<IReadingGoalRepository, ReadingGoalRepository>();
-    builder.Services.AddScoped<IAchievementRepository, AchievementRepository>();
-    builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
-    builder.Services.AddScoped<IBookReviewRepository, BookReviewRepository>();
-    builder.Services.AddScoped<IBookSeriesRepository, BookSeriesRepository>();
-    builder.Services.AddScoped<IFollowedAuthorRepository, FollowedAuthorRepository>();
-    builder.Services.AddScoped<IReadingProgressService, ReadingProgressService>();
-    builder.Services.AddScoped<IReadingGoalService, ReadingGoalService>();
-    builder.Services.AddScoped<IAchievementService, AchievementService>();
-    builder.Services.AddScoped<ICollectionService, CollectionService>();
-    builder.Services.AddScoped<IBookReviewService, BookReviewService>();
-    builder.Services.AddScoped<ISeriesService, SeriesService>();
-    builder.Services.AddScoped<IAuthorFollowService, AuthorFollowService>();
-    builder.Services.AddScoped<IStatisticsService, StatisticsService>();
     builder.Services.AddMemoryCache();
 
     // Configure CORS
@@ -325,30 +308,6 @@ try
 
     // Map recommendation endpoints
     app.MapRecommendationEndpoints();
-
-    // Map reading progress endpoints
-    app.MapReadingProgressEndpoints();
-
-    // Map reading goal endpoints
-    app.MapReadingGoalEndpoints();
-
-    // Map achievement endpoints
-    app.MapAchievementEndpoints();
-
-    // Map collection endpoints
-    app.MapCollectionEndpoints();
-
-    // Map review endpoints
-    app.MapReviewEndpoints();
-
-    // Map series endpoints
-    app.MapSeriesEndpoints();
-
-    // Map author endpoints
-    app.MapAuthorEndpoints();
-
-    // Map statistics endpoints
-    app.MapStatisticsEndpoints();
 
     app.Run();
 
