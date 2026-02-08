@@ -131,6 +131,33 @@ This directory contains the complete breakdown of technical tasks for building t
 
 ---
 
+### Phase 8: UI/UX Enhancement (Task 015)
+
+**015-task-ui-ux-transformation.md**
+- Modernize all components with shadcn/ui library
+- Add Framer Motion animations and micro-interactions
+- Enhance visual design with gradients and improved spacing
+- Implement skeleton loading states
+- **Dependencies**: All frontend tasks (002, 005, 007, 009, 011, 013)
+- **Complexity**: Medium
+
+---
+
+### Phase 9: Advanced Reading Features (Task 016)
+
+**016-task-advanced-reading-features.md**
+- Implement Reading Progress Tracker with session logging and streaks
+- Add Goals & Achievements system with gamification
+- Build Statistics Dashboard with analytics and charts
+- Create Book Collections with sharing functionality
+- Enhance Reviews with rich text, tags, and moods
+- Implement Series Tracking with auto-detection
+- Add Author Following with new release alerts
+- **Dependencies**: Tasks 001-015
+- **Complexity**: Very High (12 weeks)
+
+---
+
 ## Implementation Guidelines
 
 ### Prerequisites
@@ -172,6 +199,8 @@ Tasks must be completed in order within each phase. Dependencies are clearly mar
 | Book Search & Discovery (FRD-002) | 008 | 009 |
 | User Preferences & Ratings (FRD-003) | 010 | 011 |
 | AI Recommendations (FRD-004) | 012 | 013 |
+| UI/UX Enhancement | - | 015 |
+| Advanced Reading Features | 016 (Backend & Frontend) | - |
 
 ---
 
@@ -181,6 +210,7 @@ Tasks must be completed in order within each phase. Dependencies are clearly mar
 - **Low**: 1-2 days
 - **Medium**: 3-5 days
 - **High**: 5-10 days
+- **Very High**: 10+ days (50+ days for Task 016)
 
 ### Total Estimated Effort
 - **Scaffolding**: ~10 days (Tasks 001-003)
@@ -190,10 +220,16 @@ Tasks must be completed in order within each phase. Dependencies are clearly mar
 - **Preferences & Ratings**: ~10 days (Tasks 010-011)
 - **AI Recommendations**: ~12 days (Tasks 012-013)
 - **Deployment & DevOps**: ~5 days (Task 014)
+- **UI/UX Enhancement**: ~5 days (Task 015)
+- **Advanced Reading Features**: ~60 days (Task 016)
 
-**Total**: ~74 days (individual contributor, sequential)
+**Total**: ~139 days (individual contributor, sequential)
 
-With parallel frontend/backend work and 2 developers: **~40-45 days**
+With parallel frontend/backend work and 2 developers:
+- **Core Features (Tasks 001-015)**: ~40-45 days
+- **Advanced Features (Task 016)**: ~30-35 days (2 developers)
+
+**Total with parallelization**: ~70-80 days
 
 ---
 
@@ -232,6 +268,6 @@ For questions about specific tasks:
 - Check ADRs for architectural decisions
 - Review similar implemented tasks as examples
 
-**Last Updated**: November 11, 2025  
-**Total Tasks**: 14  
-**Status**: Ready for Implementation
+**Last Updated**: January 16, 2025  
+**Total Tasks**: 16  
+**Status**: Task 016 Ready for Implementation (Tasks 001-015 Complete)
