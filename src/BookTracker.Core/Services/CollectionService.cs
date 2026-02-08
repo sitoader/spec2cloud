@@ -55,6 +55,9 @@ public class CollectionService : ICollectionService
     /// <inheritdoc />
     public async Task<Collection> ReviseCollectionAsync(string ownerId, Guid collectionId, string label, string? summary, bool isVisible)
     {
+        if (string.IsNullOrWhiteSpace(label))
+            throw new ArgumentException("Collection label must not be empty.");
+
         var existing = await _collectionRepo.FindByIdAsync(collectionId);
         if (existing is null)
             throw new KeyNotFoundException($"Collection {collectionId} not found.");
