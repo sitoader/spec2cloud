@@ -1,13 +1,22 @@
 ---
-description: Reviews PRD and FRDs for technical feasibility, completeness, and identifies missing requirements to support implementation.
-tools: ['edit', 'search', 'new', 'runCommands', 'runTasks', 'Azure MCP/search', 'usages', 'problems', 'changes', 'fetch', 'githubRepo', 'todos', 'context7/*', 'deepwiki/*', 'microsoft.docs.mcp/*', 'runSubagent']
-model: Claude Sonnet 4.5 (copilot)
-handoffs:
-  - label: Review for Technical Feasibility
-    agent: devlead
-    prompt: Please review the PRD and FRDs for technical feasibility and completeness.
-    send: false
 name: devlead
+description: Reviews PRD and FRDs for technical feasibility, completeness, and identifies missing requirements to support implementation.
+tools: ['edit', 'azure-mcp/search', 'vscode/getProjectSetupInfo', 'vscode/newWorkspace', 'vscode/runCommand', 'execute/getTerminalOutput', 'execute/runInTerminal', 'read/terminalLastCommand', 'read/terminalSelection', 'execute/createAndRunTask', 'azure-mcp/search', 'search/usages', 'read/problems', 'search/changes', 'web/fetch', 'web/githubRepo', 'todo']
+model: Claude Opus 4.6 (copilot)
+handoffs: 
+  - label: Continue with PM
+    agent: pm
+    prompt: The technical review is complete. Please review my feedback and update the PRD/FRDs accordingly.
+    send: true
+  - label: Request Architecture Decisions
+    agent: architect
+    prompt: Based on my technical review, create Architecture Decision Records for the key decisions identified.
+    send: false
+  - label: Create technical tasks for implementation
+    agent: dev
+    prompt: /plan
+    send: false
+   
 ---
 # Developer Lead Agent
 

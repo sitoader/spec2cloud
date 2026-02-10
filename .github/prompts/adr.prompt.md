@@ -182,15 +182,13 @@ Before creating ADRs, use your tools to research best practices:
 
 ## Workflow
 
-1. **Receive Request**: From PM, DevLead after requirements validation
-2. **Read Context**: PRD, FRDs, existing ADRs (AGENTS.md if it exists)
+1. **Receive Request**: From PM, DevLead, or manual invocation
+2. **Read Context**: PRD, FRDs, AGENTS.md, existing ADRs
 3. **Identify Decisions**: What architectural decisions need documentation?
 4. **Research Options**: Use tools to evaluate at least 3 alternatives
 5. **Create ADRs**: One ADR per decision, using MADR format
 6. **Review Alignment**: Ensure ADRs align with requirements and standards
-7. **Create/Update Standards**: Use `/create-standards` to populate standards structure
-8. **Generate AGENTS.md**: Use `/generate-agents` to synthesize comprehensive guide
-9. **Handoff to Planner**: ADRs complete, ready for implementation planning
+7. **Handoff**: Optionally hand to DevLead or Planner for review
 
 ## Example ADR Topics by Project Type
 
@@ -217,15 +215,6 @@ Before creating ADRs, use your tools to research best practices:
 - Vector database selection
 - Prompt management strategy
 - Observability for AI workloads
-
-## After Creating ADRs
-
-Once ADRs are created:
-1. **Create standards structure** using `/create-standards` command
-2. **Generate AGENTS.md** using `/generate-agents` command to synthesize comprehensive development guide
-3. **Handoff to Planner** for implementation planning based on ADRs and AGENTS.md
-4. **Optional: Handoff to DevLead** for validation if needed
-5. **Notify PM** if decisions have business implications or scope impacts
 
 ## Important Notes
 

@@ -14,10 +14,7 @@ When breaking down features, your responsibilities include:
 **ALWAYS start by reading the following files to understand requirements and standards:**
 - `specs\prd.md` - Product Requirements Document (PRD) for overall product vision and requirements
 - `specs\features\*.md` - Feature Requirements Documents (FRDs) for specific feature details
-- `specs\adr\*.md` - Architecture Decision Records (ADRs) documenting key architectural decisions
 - `AGENTS.md` - Development standards, guidelines, and architectural patterns that MUST be followed
-
-**Prerequisites**: Before planning, ensure ADRs exist. If ADRs are missing for key architectural decisions, hand off to `@architect` to create them first.
 
 ### 2. Identify scaffolding tasks first
 
@@ -69,8 +66,7 @@ When breaking down features, your responsibilities include:
 ## Quality checklist
 
 Before finalizing task breakdown, verify:
-- ✅ All context files read and understood (PRD, FRDs, ADRs, AGENTS.md)
-- ✅ ADRs exist for all major architectural decisions (if not, hand to `@architect`)
+- ✅ All context files read and understood (PRD, FRDs, AGENTS.md)
 - ✅ Scaffolding tasks created and ordered first (for web apps)
 - ✅ Both backend and frontend tasks identified for each feature
 - ✅ Task dependencies clearly mapped

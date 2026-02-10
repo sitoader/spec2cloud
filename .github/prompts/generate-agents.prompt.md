@@ -1,110 +1,58 @@
 ---
 agent: dev
 ---
-# Generate AGENTS.md from Guidelines
+# Setup Engineering Standards
 
-Your task is to read the project guidelines from the `/standards/` folder and create a comprehensive AGENTS.md file that summarizes all relevant rules and best practices for development.
+Run the following commands to install APM packages and generate the AGENTS.md guardrails file:
 
-## Reading Guidelines
+```bash
+# Check if APM is installed, install if not
+if ! command -v apm &> /dev/null; then
+    echo "APM not found. Installing APM CLI..."
+    curl -sSL "https://raw.githubusercontent.com/danielmeppiel/apm/main/install.sh" | sh
+    export PATH="$HOME/.local/bin:$PATH"
+fi
 
-When creating the AGENTS.md file, you must:
-1. Read and synthesize content from all guidelines in `/standards/`:
-   - `/standards/general/` (general principles applicable to all development)
-   - `/standards/backend/` (backend-specific guidelines, if present)
-   - `/standards/frontend/` (frontend-specific guidelines, if present)
-   - `/standards/data/` (data engineering and database guidelines, if present)
-   - `/standards/ai/` (AI/ML development guidelines, if present)
-   - Any other domain-specific standards folders that may exist
-2. Create a comprehensive AGENTS.md file in the project root
-3. Organize the content logically based on the structure and topics defined in the guidelines
+# Install APM packages from apm.yml
+apm install
 
-## Guidelines for Content Synthesis
-
-1. **Be Comprehensive**: Include ALL relevant guidelines from all available sources
-2. **Maintain Clarity**: Organize content in a logical, hierarchical structure
-3. **Preserve Details**: Keep specific technical details, version numbers, package names, and configuration examples
-4. **Use Markdown Formatting**: Proper headers, lists, code blocks, and tables for readability
-5. **Integrate Seamlessly**: When guidelines from different domains overlap, merge them coherently
-6. **Highlight Critical Rules**: Emphasize non-negotiable requirements (e.g., type safety, security, testing coverage)
-7. **Include Examples**: Keep code samples and configuration snippets where provided
-8. **Maintain Consistency**: Use consistent terminology and formatting throughout
-
-## Output Format
-
-The generated AGENTS.md should follow this structure:
-
-```markdown
-# AGENTS.md
-
-## Mission
-[Mission statement from guidelines]
-
-## Guiding Principles
-[Combined principles from all guidelines]
-
-## Canonical Stack
-[Technology stack table with details for all components]
-
-## Architecture Blueprint
-[Architecture patterns and structure]
-
-## Development Playbook
-[Detailed implementation guidelines organized by domain]
-
-### Backend Development
-[Backend-specific guidelines, if applicable]
-
-### Frontend Development
-[Frontend-specific guidelines, if applicable]
-
-### Data Engineering
-[Data and database guidelines, if applicable]
-
-### AI/ML Development
-[AI and machine learning guidelines, if applicable]
-
-### [Other Domains]
-[Additional domain-specific guidelines as discovered]
-
-### Full-Stack Patterns
-[Cross-cutting patterns and integrations]
-
-## Agent-First Delivery
-[Agent integration patterns and workflows]
-
-## Shared Engineering Systems
-[Code quality, documentation, secrets management, etc.]
-
-## CI/CD Pipeline Expectations
-[Pipeline stages, preview environments, deployment]
-
-## Security & Compliance
-[Security best practices and compliance requirements]
-
-## Documentation & Knowledge Sharing
-[Documentation standards and practices]
-
-## Quality Gates Checklist
-[Comprehensive quality checklist]
-
-## Change Management
-[PR and merge policies]
+# Generate AGENTS.md from all installed packages
+apm compile
 ```
 
-## Execution Steps
+## What This Does
 
-When invoked:
-1. **Discover available guidelines**: Scan the `/standards/` folder for all available guidelines
-2. **Read all guidelines**: Always read the latest content from all guideline files
-3. **Synthesize content**: Combine and organize guidelines into a cohesive document
-4. **Generate the file**: Create a comprehensive, well-structured AGENTS.md file in the project root
-5. **Confirm completion**: Let the user know the file has been created
+1. **`apm install`** - Reads `apm.yml` and installs all APM packages into `apm_modules/`
+   - Downloads engineering standards from specified GitHub repositories
+   - Supports semantic versioning (e.g., `@1.0.0` or `@latest`)
+   - Creates `.gitignore` entry for `apm_modules/`
 
-## Important Notes
+2. **`apm compile`** - Generates `AGENTS.md` from all installed standards
+   - Scans `.apm/instructions/` in all installed packages
+   - Consolidates rules based on file pattern matching (`applyTo`)
+   - Creates comprehensive guardrails that all agents follow automatically
 
-- Always read the LATEST content from the guidelines files - never use cached or outdated information
-- Ensure no guidelines are omitted - completeness is critical
-- Maintain the technical accuracy of all specifications, package names, and version requirements
-- Keep the document maintainable - use clear sections and proper formatting
-- If guidelines conflict, prefer more specific guidelines over general ones
-- Adapt the structure based on what guidelines are actually available (e.g., backend-only, frontend-only, full-stack, data-focused, AI/ML-focused, or any combination of domains)
+## Installed Packages
+
+By default, spec2cloud includes:
+- **danielmeppiel/azure-standards** - General engineering, documentation, agent-first patterns, CI/CD, security
+
+You can add more packages by editing `apm.yml`:
+
+```yaml
+dependencies:
+  apm:
+    - danielmeppiel/azure-standards@1.0.0
+    - danielmeppiel/python-backend@1.0.0  # Optional: Python backend rules
+    - danielmeppiel/react-frontend@1.0.0  # Optional: React frontend rules
+```
+
+## Expected Output
+
+After running these commands, you should see:
+- `apm_modules/` directory with installed packages
+- `AGENTS.md` file at the project root with consolidated standards
+
+All agents will now automatically follow the engineering standards defined in AGENTS.md.
+
+**Note**: Run this once at project setup, and again whenever you update APM packages.
