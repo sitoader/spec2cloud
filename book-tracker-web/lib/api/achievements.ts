@@ -23,7 +23,7 @@ export async function bookTrackerListAchievements(): Promise<BookTrackerAchievem
  * @returns Array of user achievements
  */
 export async function bookTrackerListUserAchievements(): Promise<BookTrackerUserAchievement[]> {
-  return apiClient<BookTrackerUserAchievement[]>('/api/achievements/me');
+  return apiClient<BookTrackerUserAchievement[]>('/api/achievements/user');
 }
 
 /**

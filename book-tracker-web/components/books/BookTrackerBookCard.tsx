@@ -31,7 +31,7 @@ export default function BookTrackerBookCard({
   return (
     <Link
       href={`/books/${book.id}`}
-      className="group flex flex-col overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800"
+      className="group flex flex-col overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-zinc-700 dark:bg-zinc-800 outline-none"
     >
       {/* Cover image area */}
       <div className="relative aspect-[2/3] w-full bg-zinc-100 dark:bg-zinc-700">

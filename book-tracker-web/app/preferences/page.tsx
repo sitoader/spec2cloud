@@ -9,15 +9,12 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import BookTrackerPreferencesForm from '@/components/preferences/BookTrackerPreferencesForm';
-import BookTrackerRatingSummary from '@/components/preferences/BookTrackerRatingSummary';
 import {
   bookTrackerGetPreferences,
   bookTrackerUpdatePreferences,
 } from '@/lib/api/preferences';
-import { bookTrackerGetBooks } from '@/lib/api/books';
 import type {
   BookTrackerUserPreferences,
-  BookTrackerBook,
 } from '@/types';
 import { BookTrackerHeader } from '@/components/layout/Header';
 
@@ -27,7 +24,6 @@ import { BookTrackerHeader } from '@/components/layout/Header';
 
 export default function BookTrackerPreferencesPage(): React.JSX.Element {
   const [preferences, setPreferences] = useState<BookTrackerUserPreferences | null>(null);
-  const [books, setBooks] = useState<BookTrackerBook[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -37,12 +33,8 @@ export default function BookTrackerPreferencesPage(): React.JSX.Element {
     setLoading(true);
     setError('');
     try {
-      const [prefsData, booksData] = await Promise.all([
-        bookTrackerGetPreferences(),
-        bookTrackerGetBooks(undefined, 1, 100),
-      ]);
+      const prefsData = await bookTrackerGetPreferences();
       setPreferences(prefsData);
-      setBooks(booksData.items);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load preferences');
     } finally {
@@ -116,9 +108,6 @@ export default function BookTrackerPreferencesPage(): React.JSX.Element {
 
       {!loading && (
         <div className="mt-8 space-y-8">
-          {/* Rating summary */}
-          <BookTrackerRatingSummary books={books} />
-
           {/* Preferences form */}
           <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
             <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">

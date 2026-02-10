@@ -22,17 +22,16 @@ import { AchievementsGrid } from '@/components/achievements/AchievementsGrid';
 /* Authors components */
 import { FollowedAuthorsList } from '@/components/authors/FollowedAuthorsList';
 
-/* Series components */
-import { SeriesProgressCard } from '@/components/series/SeriesProgressCard';
+/* Rating summary */
+import BookTrackerRatingSummary from '@/components/preferences/BookTrackerRatingSummary';
 
-import type { BookTrackerReadingStreak, BookTrackerBookSeries } from '@/types';
+import type { BookTrackerReadingStreak, BookTrackerBook } from '@/types';
 import { bookTrackerGetStreak } from '@/lib/api/progress';
-import { bookTrackerListSeries } from '@/lib/api/series';
+import { bookTrackerGetBooks } from '@/lib/api/books';
 
 export default function DashboardPage(): React.JSX.Element {
   const [streak, setStreak] = useState<BookTrackerReadingStreak | null>(null);
-  const [seriesList, setSeriesList] = useState<BookTrackerBookSeries[]>([]);
-  const [seriesLoading, setSeriesLoading] = useState(true);
+  const [books, setBooks] = useState<BookTrackerBook[]>([]);
 
   const loadStreak = useCallback(async () => {
     try {
@@ -43,22 +42,19 @@ export default function DashboardPage(): React.JSX.Element {
     }
   }, []);
 
-  const loadSeries = useCallback(async () => {
-    setSeriesLoading(true);
+  const loadBooks = useCallback(async () => {
     try {
-      const data = await bookTrackerListSeries();
-      setSeriesList(data);
+      const data = await bookTrackerGetBooks(undefined, 1, 100);
+      setBooks(data.items);
     } catch {
       // silent
-    } finally {
-      setSeriesLoading(false);
     }
   }, []);
 
   useEffect(() => {
     void loadStreak();
-    void loadSeries();
-  }, [loadStreak, loadSeries]);
+    void loadBooks();
+  }, [loadStreak, loadBooks]);
 
   return (
     <>
@@ -74,10 +70,11 @@ export default function DashboardPage(): React.JSX.Element {
           </p>
         </div>
 
-        {/* Top row: Streak + Goal — always visible */}
-        <div className="mb-8 grid gap-6 md:grid-cols-2">
+        {/* Top row: Streak + Goal + Rating Summary — always visible */}
+        <div className="mb-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ReadingStreakBadge streak={streak} />
           <AnnualGoalCard />
+          <BookTrackerRatingSummary books={books} />
         </div>
 
         {/* Tabbed content */}
@@ -88,9 +85,6 @@ export default function DashboardPage(): React.JSX.Element {
             </TabsTrigger>
             <TabsTrigger value="achievements">
               <span className="mr-1.5">🏆</span> Achievements
-            </TabsTrigger>
-            <TabsTrigger value="series">
-              <span className="mr-1.5">📖</span> Series
             </TabsTrigger>
             <TabsTrigger value="authors">
               <span className="mr-1.5">✍️</span> Authors
@@ -105,36 +99,8 @@ export default function DashboardPage(): React.JSX.Element {
           {/* --- Achievements Tab --- */}
           <TabsContent value="achievements">
             <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-800">
-              <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                All Achievements
-              </h2>
               <AchievementsGrid />
             </div>
-          </TabsContent>
-
-          {/* --- Series Tab --- */}
-          <TabsContent value="series">
-            {seriesLoading ? (
-              <div className="flex h-48 items-center justify-center">
-                <div className="h-10 w-10 animate-spin rounded-full border-3 border-zinc-300 border-t-zinc-900 dark:border-zinc-600 dark:border-t-zinc-200" />
-              </div>
-            ) : seriesList.length === 0 ? (
-              <div className="py-16 text-center">
-                <span className="text-5xl">📖</span>
-                <h2 className="mt-4 text-lg font-semibold text-zinc-700 dark:text-zinc-300">
-                  No series tracked
-                </h2>
-                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                  Series will appear here once books are linked to a series
-                </p>
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {seriesList.map((series) => (
-                  <SeriesProgressCard key={series.id} series={series} />
-                ))}
-              </div>
-            )}
           </TabsContent>
 
           {/* --- Authors Tab --- */}

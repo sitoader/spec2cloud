@@ -46,7 +46,7 @@ public static class RecommendationEndpoints
                 statusCode: StatusCodes.Status401Unauthorized);
         }
 
-        var count = request?.Count ?? 5;
+        var count = request?.Count ?? 10;
         if (count < 1 || count > 10)
         {
             return Results.BadRequest(new ErrorResponse

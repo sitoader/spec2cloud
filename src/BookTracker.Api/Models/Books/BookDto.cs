@@ -37,6 +37,12 @@ public record BookDto
     /// <summary>Gets the date when the book was added to the library.</summary>
     public required DateTime AddedDate { get; init; }
 
+    /// <summary>Gets the date when the book was marked as completed.</summary>
+    public DateTime? CompletedDate { get; init; }
+
+    /// <summary>Gets the number of pages in the book.</summary>
+    public int? PageCount { get; init; }
+
     /// <summary>Gets the optional source where the book was discovered.</summary>
     public string? Source { get; init; }
 

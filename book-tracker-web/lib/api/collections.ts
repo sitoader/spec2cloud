@@ -7,6 +7,7 @@
 import { apiClient, ApiError } from './client';
 import type {
   BookTrackerCollection,
+  BookTrackerCollectionDetail,
   BookTrackerCreateCollectionPayload,
   BookTrackerUpdateCollectionPayload,
   BookTrackerAddCollectionBookPayload,
@@ -21,14 +22,14 @@ export async function bookTrackerListCollections(): Promise<BookTrackerCollectio
 }
 
 /**
- * Get a single collection by ID.
+ * Get a single collection by ID (includes books).
  * @param id - Collection ID
- * @returns Collection data
+ * @returns Collection data with books
  */
 export async function bookTrackerGetCollection(
   id: string,
-): Promise<BookTrackerCollection> {
-  return apiClient<BookTrackerCollection>(`/api/collections/${id}`);
+): Promise<BookTrackerCollectionDetail> {
+  return apiClient<BookTrackerCollectionDetail>(`/api/collections/${id}`);
 }
 
 /**
@@ -131,6 +132,17 @@ export async function bookTrackerBrowsePublicCollections(
   const endpoint = query ? `/api/collections/public?${query}` : '/api/collections/public';
 
   return apiClient<BookTrackerCollection[]>(endpoint);
+}
+
+/**
+ * Get all collections that contain a specific book.
+ * @param bookId - Book ID
+ * @returns Array of collections containing the book
+ */
+export async function bookTrackerGetCollectionsForBook(
+  bookId: string,
+): Promise<BookTrackerCollection[]> {
+  return apiClient<BookTrackerCollection[]>(`/api/collections/book/${bookId}`);
 }
 
 /**

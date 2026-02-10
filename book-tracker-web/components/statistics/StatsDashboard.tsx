@@ -64,7 +64,7 @@ export function StatsDashboard(): React.JSX.Element {
       {/* Overview stat cards */}
       {overview && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          <StatCard label="Total Books" value={overview.totalBooks} icon="📚" />
+          <StatCard label="Books Read" value={overview.totalBooks} icon="📚" />
           <StatCard label="This Year" value={overview.booksThisYear} icon="📅" />
           <StatCard label="This Month" value={overview.booksThisMonth} icon="📖" />
           <StatCard

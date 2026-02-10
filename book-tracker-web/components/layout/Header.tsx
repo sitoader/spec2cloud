@@ -12,7 +12,6 @@ import { useBookTrackerIdentity } from '@/lib/contexts/AuthContext';
 const NAV_LINKS = [
   { href: '/books', label: 'Library' },
   { href: '/dashboard', label: 'Dashboard' },
-  { href: '/recommendations', label: 'AI Picks' },
   { href: '/preferences', label: 'Preferences' },
 ];
 

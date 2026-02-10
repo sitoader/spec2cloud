@@ -30,4 +30,7 @@ public interface ICollectionRepository
 
     /// <summary>Gets all visible collections, optionally filtered by a search term.</summary>
     Task<IEnumerable<Collection>> FetchVisibleAsync(string? searchTerm);
+
+    /// <summary>Gets all collections owned by a given owner that contain a specific book.</summary>
+    Task<IEnumerable<Collection>> FetchByBookAsync(string ownerId, Guid bookId);
 }

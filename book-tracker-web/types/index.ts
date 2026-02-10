@@ -90,6 +90,8 @@ export interface BookTrackerBook {
   publicationDate?: string;
   status: BookTrackerBookStatus;
   addedDate: string;
+  completedDate?: string;
+  pageCount?: number;
   source?: string;
   rating?: BookTrackerRating;
 }
@@ -104,6 +106,7 @@ export interface BookTrackerAddBookPayload {
   genres?: string[];
   publicationDate?: string;
   status: BookTrackerBookStatus;
+  pageCount?: number;
   source?: string;
 }
 
@@ -117,6 +120,7 @@ export interface BookTrackerUpdateBookPayload {
   genres?: string[];
   publicationDate?: string;
   status?: BookTrackerBookStatus;
+  pageCount?: number;
   source?: string;
 }
 
@@ -168,6 +172,7 @@ export interface BookTrackerExternalBook {
   description?: string;
   genres?: string[];
   publicationYear?: number;
+  pageCount?: number;
   source: string;
 }
 
@@ -359,6 +364,22 @@ export interface BookTrackerCollection {
   updatedAt: string;
 }
 
+/** A book entry within a collection. */
+export interface BookTrackerCollectionBookItem {
+  bookId: string;
+  title: string;
+  author: string;
+  coverImageUrl?: string;
+  status: BookTrackerBookStatus;
+  notes?: string;
+  addedAt: string;
+}
+
+/** Detailed collection data including its books. */
+export interface BookTrackerCollectionDetail extends BookTrackerCollection {
+  books: BookTrackerCollectionBookItem[];
+}
+
 /* ------------------------------------------------------------------ */
 /*  Enhanced review types                                               */
 /* ------------------------------------------------------------------ */
@@ -401,38 +422,6 @@ export interface BookTrackerBookReview {
   wouldRecommend?: boolean;
   createdAt: string;
   updatedAt: string;
-}
-
-/* ------------------------------------------------------------------ */
-/*  Series tracking types                                               */
-/* ------------------------------------------------------------------ */
-
-/** Entry within a book series. */
-export interface BookTrackerSeriesEntry {
-  id: string;
-  bookId: string;
-  positionInSeries: number;
-}
-
-/** Payload for series book entry in POST /api/series. */
-export interface BookTrackerSeriesBookInput {
-  bookId: string;
-  position: number;
-}
-
-/** Payload for POST /api/series. */
-export interface BookTrackerCreateSeriesPayload {
-  name: string;
-  books: BookTrackerSeriesBookInput[];
-}
-
-/** Book series data from the API. */
-export interface BookTrackerBookSeries {
-  id: string;
-  name: string;
-  totalBooks?: number;
-  description?: string;
-  entries?: BookTrackerSeriesEntry[];
 }
 
 /* ------------------------------------------------------------------ */

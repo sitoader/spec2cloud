@@ -85,7 +85,7 @@ export function BookTrackerBookGrid({
       aria-label="Books collection"
     >
       {publicationSet.map((pub) => (
-        <div key={pub.id} role="listitem">
+        <div key={pub.id} role="listitem" className="h-full">
           <BookTrackerBookCard publication={pub} />
         </div>
       ))}

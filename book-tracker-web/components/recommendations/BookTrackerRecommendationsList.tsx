@@ -64,7 +64,7 @@ export function BookTrackerRecommendationsList({
   return (
     <>
       <div
-        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5"
         role="list"
         aria-label="Book recommendations"
       >
@@ -74,8 +74,6 @@ export function BookTrackerRecommendationsList({
               title={rec.title}
               author={rec.author}
               genre={rec.genre}
-              reason={rec.reason}
-              confidenceScore={rec.confidenceScore}
               coverImageUrl={rec.coverImageUrl}
               isAdded={addedTitles.has(rec.title)}
               onViewDetails={(): void => {

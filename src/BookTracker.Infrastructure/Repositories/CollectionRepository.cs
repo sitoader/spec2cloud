@@ -33,6 +33,7 @@ public class CollectionRepository : ICollectionRepository
         return await _db.Collections
             .AsNoTracking()
             .Include(c => c.Items)
+                .ThenInclude(i => i.LinkedBook)
             .FirstOrDefaultAsync(c => c.Id == collectionId);
     }
 
@@ -97,5 +98,15 @@ public class CollectionRepository : ICollectionRepository
         }
 
         return await query.ToListAsync();
+    }
+
+    /// <inheritdoc />
+    public async Task<IEnumerable<Collection>> FetchByBookAsync(string ownerId, Guid bookId)
+    {
+        return await _db.Collections
+            .AsNoTracking()
+            .Include(c => c.Items)
+            .Where(c => c.UserId == ownerId && c.Items.Any(i => i.BookId == bookId))
+            .ToListAsync();
     }
 }

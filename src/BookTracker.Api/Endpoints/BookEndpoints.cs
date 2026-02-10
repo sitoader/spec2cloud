@@ -152,7 +152,8 @@ public static class BookEndpoints
                 payload.Genres,
                 payload.PublicationDate,
                 payload.Status,
-                payload.Source);
+                payload.Source,
+                payload.PageCount);
 
             var dto = ToDto(book);
             return Results.Created($"/api/books/{dto.Id}", dto);
@@ -199,7 +200,8 @@ public static class BookEndpoints
                 payload.Description,
                 payload.Genres,
                 payload.PublicationDate,
-                payload.Source);
+                payload.Source,
+                payload.PageCount);
 
             return Results.Ok(ToDto(book));
         }
@@ -325,6 +327,8 @@ public static class BookEndpoints
             PublicationDate = book.PublicationDate,
             Status = book.Status,
             AddedDate = book.AddedDate,
+            CompletedDate = book.CompletedDate,
+            PageCount = book.PageCount,
             Source = book.Source,
             Rating = book.Rating is not null
                 ? new RatingDto

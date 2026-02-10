@@ -96,14 +96,12 @@ try
     builder.Services.AddScoped<IAchievementRepository, AchievementRepository>();
     builder.Services.AddScoped<ICollectionRepository, CollectionRepository>();
     builder.Services.AddScoped<IBookReviewRepository, BookReviewRepository>();
-    builder.Services.AddScoped<IBookSeriesRepository, BookSeriesRepository>();
     builder.Services.AddScoped<IFollowedAuthorRepository, FollowedAuthorRepository>();
     builder.Services.AddScoped<IReadingProgressService, ReadingProgressService>();
     builder.Services.AddScoped<IReadingGoalService, ReadingGoalService>();
     builder.Services.AddScoped<IAchievementService, AchievementService>();
     builder.Services.AddScoped<ICollectionService, CollectionService>();
     builder.Services.AddScoped<IBookReviewService, BookReviewService>();
-    builder.Services.AddScoped<ISeriesService, SeriesService>();
     builder.Services.AddScoped<IAuthorFollowService, AuthorFollowService>();
     builder.Services.AddScoped<IStatisticsService, StatisticsService>();
     builder.Services.AddMemoryCache();
@@ -340,9 +338,6 @@ try
 
     // Map review endpoints
     app.MapReviewEndpoints();
-
-    // Map series endpoints
-    app.MapSeriesEndpoints();
 
     // Map author endpoints
     app.MapAuthorEndpoints();

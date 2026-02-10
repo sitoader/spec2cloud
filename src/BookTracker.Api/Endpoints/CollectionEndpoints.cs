@@ -32,10 +32,23 @@ public static class CollectionEndpoints
             .Produces<CollectionDto>(StatusCodes.Status201Created)
             .Produces(StatusCodes.Status401Unauthorized);
 
+        // Literal paths MUST come before /{id:guid} to prevent route ambiguity
+        collections.MapGet("/public", BrowsePublicCollectionsHandler)
+            .WithName("BrowsePublicCollections")
+            .WithOpenApi()
+            .Produces<CollectionDto[]>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
+
+        collections.MapGet("/book/{bookId:guid}", GetCollectionsForBookHandler)
+            .WithName("GetCollectionsForBook")
+            .WithOpenApi()
+            .Produces<CollectionDto[]>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized);
+
         collections.MapGet("/{id:guid}", GetCollectionHandler)
             .WithName("GetCollection")
             .WithOpenApi()
-            .Produces<CollectionDto>(StatusCodes.Status200OK)
+            .Produces<CollectionDetailDto>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound);
 
@@ -61,12 +74,6 @@ public static class CollectionEndpoints
             .WithName("RemoveBookFromCollection")
             .WithOpenApi()
             .Produces(StatusCodes.Status204NoContent)
-            .Produces(StatusCodes.Status401Unauthorized);
-
-        collections.MapGet("/public", BrowsePublicCollectionsHandler)
-            .WithName("BrowsePublicCollections")
-            .WithOpenApi()
-            .Produces<CollectionDto[]>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status401Unauthorized);
     }
 
@@ -128,7 +135,7 @@ public static class CollectionEndpoints
             });
         }
 
-        return Results.Ok(ToDto(collection));
+        return Results.Ok(ToDetailDto(collection));
     }
 
     private static async Task<IResult> UpdateCollectionHandler(
@@ -247,6 +254,19 @@ public static class CollectionEndpoints
         return Results.Ok(dtos);
     }
 
+    private static async Task<IResult> GetCollectionsForBookHandler(
+        Guid bookId,
+        ICollectionService svc,
+        HttpContext httpCtx)
+    {
+        var userId = GetUserId(httpCtx);
+        if (userId is null) return Results.Unauthorized();
+
+        var collections = await svc.ListCollectionsForBookAsync(userId, bookId);
+        var dtos = collections.Select(ToDto).ToArray();
+        return Results.Ok(dtos);
+    }
+
     // ── Helpers ─────────────────────────────────────────────────
 
     private static string? GetUserId(HttpContext httpCtx)
@@ -266,6 +286,33 @@ public static class CollectionEndpoints
             BookCount = collection.Items.Count,
             CreatedAt = collection.SetAt,
             UpdatedAt = collection.ModifiedAt,
+        };
+    }
+
+    private static CollectionDetailDto ToDetailDto(Core.Entities.Collection collection)
+    {
+        return new CollectionDetailDto
+        {
+            Id = collection.Id,
+            Name = collection.Label,
+            Description = collection.Summary,
+            IsPublic = collection.IsVisible,
+            BookCount = collection.Items.Count,
+            CreatedAt = collection.SetAt,
+            UpdatedAt = collection.ModifiedAt,
+            Books = collection.Items
+                .Where(item => item.LinkedBook != null)
+                .Select(item => new CollectionBookItemDto
+                {
+                    BookId = item.BookId,
+                    Title = item.LinkedBook!.Title,
+                    Author = item.LinkedBook.Author,
+                    CoverImageUrl = item.LinkedBook.CoverImageUrl,
+                    Status = item.LinkedBook.Status,
+                    Notes = item.Annotation,
+                    AddedAt = item.IncludedAt,
+                })
+                .ToArray(),
         };
     }
 }

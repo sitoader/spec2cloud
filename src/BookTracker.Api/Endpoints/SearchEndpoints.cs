@@ -57,6 +57,7 @@ public static class SearchEndpoints
             Description = r.Description,
             Genres = r.Genres,
             PublicationYear = r.PublicationYear,
+            PageCount = r.PageCount,
             Source = r.Source,
         }).ToArray();
 

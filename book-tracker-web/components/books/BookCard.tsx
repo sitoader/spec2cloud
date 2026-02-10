@@ -87,13 +87,13 @@ export function BookTrackerBookCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       whileHover={{ y: -8, transition: { duration: 0.2 } }}
-      className="group relative flex flex-col"
+      className="group relative flex h-full flex-col"
       aria-labelledby={`bt-book-title-${publication.id}`}
     >
       <Card className="flex h-full flex-col overflow-hidden transition-shadow duration-200 hover:shadow-xl">
         <Link
           href={`/books/${publication.id}`}
-          className="flex flex-col focus:outline-none focus:ring-2 focus:ring-zinc-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-900"
+          className="flex h-full flex-col outline-none"
         >
         <div className="relative aspect-[2/3] overflow-hidden bg-zinc-100 dark:bg-zinc-800">
           {publication.coverImageUrl ? (
@@ -116,10 +116,10 @@ export function BookTrackerBookCard({
           </div>
         </div>
 
-        <div className="flex flex-col gap-2 p-4">
+        <div className="flex flex-1 flex-col gap-2 p-4">
           <h3
             id={`bt-book-title-${publication.id}`}
-            className="line-clamp-2 text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-100"
+            className="min-h-[2.75rem] line-clamp-2 text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-100"
           >
             {publication.title}
           </h3>
@@ -127,14 +127,12 @@ export function BookTrackerBookCard({
             {pipeline.authorCredit}
           </p>
 
-          {pipeline.synopsisSnippet.length > 0 && (
-            <p className="line-clamp-3 text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">
-              {pipeline.synopsisSnippet}
-            </p>
-          )}
+          <p className="min-h-[2.5rem] line-clamp-2 text-xs leading-relaxed text-zinc-500 dark:text-zinc-500">
+            {pipeline.synopsisSnippet || '\u00A0'}
+          </p>
 
           {pipeline.categoryTags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 pt-1">
+            <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
               {pipeline.categoryTags.map((tag, idx) => (
                 <Badge key={`${tag}-${idx}`} variant="secondary" className="text-xs">
                   {tag}

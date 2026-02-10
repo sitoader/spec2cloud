@@ -9,7 +9,7 @@
 
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { BookTrackerBook } from '@/types';
+import type { BookTrackerBook, BookTrackerCollection } from '@/types';
 import { BookTrackerBookStatus } from '@/types';
 import { BookTrackerStatusBadge } from './StatusBadge';
 import { BookTrackerConfirmDialog } from './ConfirmDialog';
@@ -28,6 +28,7 @@ interface BookTrackerBookDetailProps {
   onAddToCollection?: () => void;
   onWriteReview?: () => void;
   hasReview?: boolean;
+  collections?: BookTrackerCollection[];
 }
 
 /* ------------------------------------------------------------------ */
@@ -39,6 +40,7 @@ export function BookTrackerBookDetail({
   onAddToCollection,
   onWriteReview,
   hasReview = false,
+  collections = [],
 }: BookTrackerBookDetailProps): React.JSX.Element {
   const router = useRouter();
   const [currentStatus, setCurrentStatus] = useState(publication.status);
@@ -95,6 +97,14 @@ export function BookTrackerBookDetail({
 
   const formattedPublicationDate = publication.publicationDate
     ? new Date(publication.publicationDate).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : null;
+
+  const formattedCompletedDate = publication.completedDate
+    ? new Date(publication.completedDate).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
@@ -188,6 +198,31 @@ export function BookTrackerBookDetail({
               </p>
             </div>
 
+            {/* Your Rating (from Rating entity, shown when no review covers it) */}
+            {publication.rating && publication.rating.score > 0 && (
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <svg
+                      key={i}
+                      className={`h-5 w-5 ${
+                        i < publication.rating!.score
+                          ? 'text-amber-400'
+                          : 'text-zinc-300 dark:text-zinc-600'
+                      }`}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                  {publication.rating.score}/5
+                </span>
+              </div>
+            )}
+
             {/* Status badge and dropdown */}
             <div className="flex flex-wrap items-center gap-3">
               <BookTrackerStatusBadge status={currentStatus} />
@@ -239,6 +274,12 @@ export function BookTrackerBookDetail({
 
             {/* Additional details */}
             <div className="space-y-2 border-t border-zinc-200 pt-4 text-sm dark:border-zinc-800">
+              {publication.pageCount && (
+                <div className="flex gap-2">
+                  <span className="font-medium text-zinc-700 dark:text-zinc-300">Pages:</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">{publication.pageCount.toLocaleString()}</span>
+                </div>
+              )}
               {publication.isbn && (
                 <div className="flex gap-2">
                   <span className="font-medium text-zinc-700 dark:text-zinc-300">ISBN:</span>
@@ -261,7 +302,36 @@ export function BookTrackerBookDetail({
                 <span className="font-medium text-zinc-700 dark:text-zinc-300">Added:</span>
                 <span className="text-zinc-600 dark:text-zinc-400">{formattedAddedDate}</span>
               </div>
+              {formattedCompletedDate && (
+                <div className="flex gap-2">
+                  <span className="font-medium text-zinc-700 dark:text-zinc-300">Completed:</span>
+                  <span className="text-zinc-600 dark:text-zinc-400">{formattedCompletedDate}</span>
+                </div>
+              )}
             </div>
+
+            {/* Collections this book belongs to */}
+            {collections.length > 0 && (
+              <div className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                <h2 className="mb-2 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                  Collections
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {collections.map((col) => (
+                    <a
+                      key={col.id}
+                      href={`/collections/${col.id}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 transition-colors hover:bg-violet-100 dark:bg-violet-900/30 dark:text-violet-400 dark:hover:bg-violet-900/50"
+                    >
+                      <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path d="M19 11H5m7-7v14" strokeLinecap="round" />
+                      </svg>
+                      {col.name}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
           </div>
         </div>

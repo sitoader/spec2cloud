@@ -19,6 +19,11 @@ public class Book
     public DateTime? PublicationDate { get; set; }
     public required BookStatus Status { get; set; }
     public DateTime AddedDate { get; set; }
+    /// <summary>
+    /// The date when the book was marked as completed. Null if not yet completed.
+    /// </summary>
+    public DateTime? CompletedDate { get; set; }
+    public int? PageCount { get; set; }
     public string? Source { get; set; }
     
     // Navigation properties

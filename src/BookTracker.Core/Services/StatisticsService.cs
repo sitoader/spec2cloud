@@ -37,16 +37,20 @@ public class StatisticsService : IStatisticsService
         var now = DateTime.UtcNow;
 
         var completedBooks = allBooks.Where(b => b.Status == BookStatus.Completed).ToList();
-        var completedThisYear = completedBooks.Count(b => b.AddedDate.Year == now.Year);
-        var completedThisMonth = completedBooks.Count(b => b.AddedDate.Year == now.Year && b.AddedDate.Month == now.Month);
+        var completedThisYear = completedBooks.Count(b => (b.CompletedDate ?? b.AddedDate).Year == now.Year);
+        var completedThisMonth = completedBooks.Count(b =>
+        {
+            var d = b.CompletedDate ?? b.AddedDate;
+            return d.Year == now.Year && d.Month == now.Month;
+        });
 
         var ratedBooks = allBooks.Where(b => b.Rating is not null).ToList();
         var meanRating = ratedBooks.Count > 0
             ? Math.Round((decimal)ratedBooks.Average(b => b.Rating!.Score), 2)
             : 0m;
 
-        var sessions = await _sessionRepo.FetchByOwnerAsync(ownerId, null, null);
-        var cumulativePages = sessions.Sum(s => s.PageCount ?? 0);
+        // Total pages read = sum of PageCount for all completed books
+        var totalPagesRead = completedBooks.Sum(b => b.PageCount ?? 0);
 
         var streak = await _streakRepo.FindByOwnerAsync(ownerId);
         var activeStreakDays = streak?.ActiveStreakDays ?? 0;
@@ -55,11 +59,11 @@ public class StatisticsService : IStatisticsService
 
         return new ReadingStatsOverview
         {
-            TotalBooksOwned = allBooks.Count,
+            TotalBooksOwned = completedBooks.Count,
             CompletedThisYear = completedThisYear,
             CompletedThisMonth = completedThisMonth,
             MeanRating = meanRating,
-            CumulativePagesRead = cumulativePages,
+            CumulativePagesRead = totalPagesRead,
             ActiveStreakDays = activeStreakDays
         };
     }
@@ -68,10 +72,10 @@ public class StatisticsService : IStatisticsService
     public async Task<IEnumerable<MonthlyBookTally>> ComputeMonthlyBreakdownAsync(string ownerId, int year)
     {
         var result = await _bookRepo.GetByUserIdAsync(ownerId, BookStatus.Completed, 0, int.MaxValue);
-        var completedInYear = result.Books.Where(b => b.AddedDate.Year == year).ToList();
+        var completedInYear = result.Books.Where(b => (b.CompletedDate ?? b.AddedDate).Year == year).ToList();
 
         var grouped = completedInYear
-            .GroupBy(b => b.AddedDate.Month)
+            .GroupBy(b => (b.CompletedDate ?? b.AddedDate).Month)
             .ToDictionary(g => g.Key, g => g.Count());
 
         var tallies = Enumerable.Range(1, 12)

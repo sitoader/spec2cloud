@@ -37,6 +37,9 @@ public record UpdateBookRequest
     /// <summary>Gets the updated publication date.</summary>
     public DateTime? PublicationDate { get; init; }
 
+    /// <summary>Gets the updated page count.</summary>
+    public int? PageCount { get; init; }
+
     /// <summary>Gets the updated source.</summary>
     public string? Source { get; init; }
 }

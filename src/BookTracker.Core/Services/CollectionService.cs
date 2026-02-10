@@ -114,6 +114,12 @@ public class CollectionService : ICollectionService
     }
 
     /// <inheritdoc />
+    public async Task<IEnumerable<Collection>> ListCollectionsForBookAsync(string ownerId, Guid bookId)
+    {
+        return await _collectionRepo.FetchByBookAsync(ownerId, bookId);
+    }
+
+    /// <inheritdoc />
     public async Task DetachBookAsync(string ownerId, Guid collectionId, Guid bookId)
     {
         var collection = await _collectionRepo.FindByIdAsync(collectionId);

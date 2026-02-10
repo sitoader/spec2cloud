@@ -157,6 +157,8 @@ public static class AuthorEndpoints
             PublicationDate = book.PublicationDate,
             Status = book.Status,
             AddedDate = book.AddedDate,
+            CompletedDate = book.CompletedDate,
+            PageCount = book.PageCount,
             Source = book.Source,
         };
     }

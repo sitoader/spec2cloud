@@ -72,6 +72,7 @@ public static class ReadingGoalEndpoints
     private static async Task<IResult> GetGoalHandler(
         int year,
         IReadingGoalService svc,
+        IBookService bookSvc,
         HttpContext httpCtx)
     {
         var userId = GetUserId(httpCtx);
@@ -87,7 +88,11 @@ public static class ReadingGoalEndpoints
             });
         }
 
-        return Results.Ok(ToDto(goal));
+        // Compute completed books count dynamically from actual book data
+        var books = await bookSvc.GetUserBooksAsync(userId, BookStatus.Completed, 1, int.MaxValue);
+        var completedInYear = books.Books.Count(b => (b.CompletedDate ?? b.AddedDate).Year == year);
+
+        return Results.Ok(ToDtoWithCount(goal, completedInYear));
     }
 
     private static async Task<IResult> UpdateGoalHandler(
@@ -132,6 +137,19 @@ public static class ReadingGoalEndpoints
             Year = goal.TargetYear,
             TargetBooksCount = goal.TargetBookCount,
             CompletedBooksCount = goal.FinishedBookCount,
+            CreatedAt = goal.SetAt,
+            UpdatedAt = goal.ModifiedAt,
+        };
+    }
+
+    private static ReadingGoalDto ToDtoWithCount(ReadingGoal goal, int completedCount)
+    {
+        return new ReadingGoalDto
+        {
+            Id = goal.Id,
+            Year = goal.TargetYear,
+            TargetBooksCount = goal.TargetBookCount,
+            CompletedBooksCount = completedCount,
             CreatedAt = goal.SetAt,
             UpdatedAt = goal.ModifiedAt,
         };

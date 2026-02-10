@@ -22,8 +22,9 @@ public class BookServiceTests
     public BookServiceTests()
     {
         _repo = Substitute.For<IBookRepository>();
+        var searchService = Substitute.For<IBookSearchService>();
         var logger = Substitute.For<ILogger<BookService>>();
-        _svc = new BookService(_repo, logger);
+        _svc = new BookService(_repo, searchService, logger);
     }
 
     // ── GetUserBooksAsync ───────────────────────────────────────

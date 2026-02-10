@@ -13,11 +13,13 @@ namespace BookTracker.Core.Services;
 public class BookService : IBookService
 {
     private readonly IBookRepository _repo;
+    private readonly IBookSearchService _searchService;
     private readonly ILogger<BookService> _logger;
 
-    public BookService(IBookRepository repo, ILogger<BookService> logger)
+    public BookService(IBookRepository repo, IBookSearchService searchService, ILogger<BookService> logger)
     {
         _repo = repo;
+        _searchService = searchService;
         _logger = logger;
     }
 
@@ -47,7 +49,8 @@ public class BookService : IBookService
     /// <inheritdoc />
     public async Task<Book> AddBookAsync(string userId, string title, string author,
         string? isbn, string? coverImageUrl, string? description,
-        string[]? genres, DateTime? publicationDate, BookStatus status, string? source)
+        string[]? genres, DateTime? publicationDate, BookStatus status, string? source,
+        int? pageCount = null)
     {
         // Check for duplicate title
         if (await _repo.ExistsAsync(userId, title))
@@ -80,6 +83,13 @@ public class BookService : IBookService
             }
         }
 
+        // Auto-lookup page count from external APIs if not provided
+        var resolvedPageCount = pageCount;
+        if (resolvedPageCount is null)
+        {
+            resolvedPageCount = await _searchService.LookupPageCountAsync(title, author, isbn);
+        }
+
         var book = new Book
         {
             Id = Guid.NewGuid(),
@@ -95,6 +105,10 @@ public class BookService : IBookService
                 : null,
             Status = status,
             AddedDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc),
+            CompletedDate = status == BookStatus.Completed
+                ? DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc)
+                : null,
+            PageCount = resolvedPageCount,
             Source = safeSource,
         };
 
@@ -109,7 +123,8 @@ public class BookService : IBookService
     public async Task<Book> UpdateBookAsync(string userId, Guid bookId,
         string? title, string? author, BookStatus? status,
         string? isbn, string? coverImageUrl, string? description,
-        string[]? genres, DateTime? publicationDate, string? source)
+        string[]? genres, DateTime? publicationDate, string? source,
+        int? pageCount = null)
     {
         // Check existence and ownership
         var book = await _repo.GetByIdAsync(bookId);
@@ -121,13 +136,21 @@ public class BookService : IBookService
         // Apply partial updates
         if (title is not null) book.Title = title;
         if (author is not null) book.Author = author;
-        if (status.HasValue) book.Status = status.Value;
+        if (status.HasValue)
+        {
+            book.Status = status.Value;
+            if (status.Value == BookStatus.Completed && book.CompletedDate is null)
+                book.CompletedDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+            else if (status.Value != BookStatus.Completed)
+                book.CompletedDate = null;
+        }
         if (isbn is not null) book.Isbn = isbn;
         if (coverImageUrl is not null) book.CoverImageUrl = coverImageUrl;
         if (description is not null) book.Description = description;
         if (genres is not null) book.Genres = JsonSerializer.Serialize(genres);
         if (publicationDate.HasValue) book.PublicationDate = publicationDate.Value;
         if (source is not null) book.Source = source;
+        if (pageCount.HasValue) book.PageCount = pageCount;
 
         await _repo.UpdateAsync(book);
         _logger.LogInformation("Book {BookId} updated for user {UserId}", bookId, userId);
@@ -145,6 +168,11 @@ public class BookService : IBookService
             throw new BookAccessDeniedException();
 
         book.Status = status;
+        if (status == BookStatus.Completed && book.CompletedDate is null)
+            book.CompletedDate = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+        else if (status != BookStatus.Completed)
+            book.CompletedDate = null;
+
         await _repo.UpdateAsync(book);
         _logger.LogInformation("Book {BookId} status changed to {Status} for user {UserId}",
             bookId, status, userId);

@@ -249,6 +249,9 @@ public class BookSearchService : IBookSearchService
                 Description = description,
                 Genres = genres,
                 PublicationYear = pubYear,
+                PageCount = vol.TryGetProperty("pageCount", out var pc) && pc.ValueKind == JsonValueKind.Number
+                    ? pc.GetInt32()
+                    : null,
                 Source = "google-books",
             });
         }
@@ -338,6 +341,9 @@ public class BookSearchService : IBookSearchService
                 Description = description,
                 Genres = genres,
                 PublicationYear = pubYear,
+                PageCount = item.TryGetProperty("number_of_pages_median", out var npm) && npm.ValueKind == JsonValueKind.Number
+                    ? npm.GetInt32()
+                    : null,
                 Source = "open-library",
             });
         }
@@ -418,6 +424,37 @@ public class BookSearchService : IBookSearchService
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogDebug(ex, "Failed to enrich description for {Title}", result.Title);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<int?> LookupPageCountAsync(string title, string author, string? isbn)
+    {
+        try
+        {
+            // Try Google Books first (more reliable page counts)
+            var query = !string.IsNullOrWhiteSpace(isbn)
+                ? $"isbn:{isbn}"
+                : $"intitle:{title}+inauthor:{author}";
+
+            var results = await SearchGoogleBooksAsync(query, 1);
+            var pageCount = results.FirstOrDefault()?.PageCount;
+            if (pageCount is > 0) return pageCount;
+
+            // Fallback to Open Library
+            var olQuery = !string.IsNullOrWhiteSpace(isbn)
+                ? isbn
+                : $"{title} {author}";
+            var olResults = await SearchOpenLibraryAsync(olQuery, 1);
+            pageCount = olResults.FirstOrDefault()?.PageCount;
+            if (pageCount is > 0) return pageCount;
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Failed to lookup page count for '{Title}' by {Author}", title, author);
+            return null;
         }
     }
 

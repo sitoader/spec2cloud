@@ -77,12 +77,12 @@ export default function BookTrackerSearchResultCard({
       whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="group overflow-hidden cursor-pointer transition-shadow duration-200 hover:shadow-lg">
+      <Card className="group flex h-full flex-col overflow-hidden cursor-pointer transition-shadow duration-200 hover:shadow-lg">
         {/* Clickable cover + metadata area */}
         <button
           type="button"
           onClick={(): void => onOpenDetail(externalBook)}
-          className="flex w-full flex-col text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          className="flex w-full flex-1 flex-col text-left outline-none"
         >
           {/* Cover image */}
           <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-100 dark:bg-zinc-800">
@@ -122,11 +122,9 @@ export default function BookTrackerSearchResultCard({
                 {externalBook.publicationYear}
               </p>
             )}
-            {snippet && (
-              <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-zinc-500">
-                {snippet}
-              </p>
-            )}
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-500">
+              {snippet || '\u00A0'}
+            </p>
             {externalBook.genres && externalBook.genres.length > 0 && (
               <div className="mt-auto flex flex-wrap gap-1 pt-1">
                 {externalBook.genres.slice(0, 3).map((genre) => (

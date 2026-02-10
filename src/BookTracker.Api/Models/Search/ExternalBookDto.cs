@@ -29,6 +29,9 @@ public record ExternalBookDto
     /// <summary>Gets the publication year.</summary>
     public int? PublicationYear { get; init; }
 
+    /// <summary>Gets the number of pages.</summary>
+    public int? PageCount { get; init; }
+
     /// <summary>Gets the source API identifier ("google-books" or "open-library").</summary>
     public required string Source { get; init; }
 }

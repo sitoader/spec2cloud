@@ -25,7 +25,7 @@ interface BookTrackerRatingSummaryProps {
 export default function BookTrackerRatingSummary({
   books,
 }: BookTrackerRatingSummaryProps): React.JSX.Element {
-  const ratedBooks = books.filter((b) => b.rating);
+  const ratedBooks = books.filter((b) => b.rating && b.rating.score > 0);
   const totalRated = ratedBooks.length;
 
   const averageRating =
@@ -49,10 +49,13 @@ export default function BookTrackerRatingSummary({
 
       {/* Stats row */}
       <div className="flex gap-6">
-        <div>
-          <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{totalRated}</p>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">Books Rated</p>
-        </div>
+        <Link
+          href="/books?filter=rated"
+          className="group cursor-pointer"
+        >
+          <p className="text-2xl font-bold text-zinc-900 group-hover:text-amber-600 dark:text-zinc-100 dark:group-hover:text-amber-400 transition-colors">{totalRated}</p>
+          <p className="text-xs text-zinc-500 group-hover:text-amber-600 dark:text-zinc-400 dark:group-hover:text-amber-400 transition-colors underline-offset-2 group-hover:underline">Books Rated</p>
+        </Link>
         <div>
           <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
             {totalRated > 0 ? averageRating.toFixed(1) : '—'}

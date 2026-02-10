@@ -30,4 +30,7 @@ public interface ICollectionService
 
     /// <summary>Browses publicly visible collections, optionally filtered by search term.</summary>
     Task<IEnumerable<Collection>> BrowseVisibleCollectionsAsync(string? searchTerm);
+
+    /// <summary>Lists collections owned by the specified owner that contain a given book.</summary>
+    Task<IEnumerable<Collection>> ListCollectionsForBookAsync(string ownerId, Guid bookId);
 }

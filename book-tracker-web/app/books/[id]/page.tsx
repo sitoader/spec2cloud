@@ -16,7 +16,6 @@ import type {
   BookTrackerReadingProgress,
   BookTrackerReadingSession,
   BookTrackerBookReview,
-  BookTrackerBookSeries,
 } from '@/types';
 import { BookTrackerBookStatus } from '@/types';
 import { bookTrackerGetBook } from '@/lib/api/books';
@@ -33,8 +32,8 @@ import { ReviewEditor } from '@/components/reviews/ReviewEditor';
 import { ReviewCard } from '@/components/reviews/ReviewCard';
 import { bookTrackerGetBookReviews, bookTrackerDeleteReview } from '@/lib/api/reviews';
 import { AddToCollectionDialog } from '@/components/collections/AddToCollectionDialog';
-import { SeriesBadge } from '@/components/series/SeriesBadge';
-import { bookTrackerGetSeriesByBook } from '@/lib/api/series';
+import { bookTrackerGetCollectionsForBook } from '@/lib/api/collections';
+import type { BookTrackerCollection } from '@/types';
 import { toast } from 'sonner';
 
 /* ------------------------------------------------------------------ */
@@ -63,11 +62,11 @@ export default function BookTrackerBookDetailPage(): React.JSX.Element {
   const [showReviewEditor, setShowReviewEditor] = useState(false);
   const [editingReview, setEditingReview] = useState<BookTrackerBookReview | undefined>(undefined);
 
-  /* Series state */
-  const [series, setSeries] = useState<BookTrackerBookSeries | null>(null);
-
   /* Collection dialog */
   const [showCollectionDialog, setShowCollectionDialog] = useState(false);
+
+  /* Collections for this book */
+  const [bookCollections, setBookCollections] = useState<BookTrackerCollection[]>([]);
 
   /* ---- Data loading ---- */
 
@@ -109,13 +108,13 @@ export default function BookTrackerBookDetailPage(): React.JSX.Element {
     }
   }, [publicationId]);
 
-  const loadSeries = useCallback(async () => {
+  const loadBookCollections = useCallback(async () => {
     if (!publicationId) return;
     try {
-      const data = await bookTrackerGetSeriesByBook(publicationId);
-      setSeries(data);
+      const data = await bookTrackerGetCollectionsForBook(publicationId);
+      setBookCollections(data);
     } catch {
-      /* Book may not belong to a series */
+      /* Collections may not exist yet */
     }
   }, [publicationId]);
 
@@ -123,8 +122,8 @@ export default function BookTrackerBookDetailPage(): React.JSX.Element {
     void loadPublication();
     void loadProgress();
     void loadReviews();
-    void loadSeries();
-  }, [loadPublication, loadProgress, loadReviews, loadSeries]);
+    void loadBookCollections();
+  }, [loadPublication, loadProgress, loadReviews, loadBookCollections]);
 
 
 
@@ -176,18 +175,6 @@ export default function BookTrackerBookDetailPage(): React.JSX.Element {
         {/* Book detail view */}
         {!isFetching && !fetchError && publication && (
           <div className="space-y-8">
-            {/* Series badge (inline above book detail) */}
-            {series && (() => {
-              const entry = series.entries?.find((e) => e.bookId === publicationId);
-              return (
-                <SeriesBadge
-                  seriesName={series.name}
-                  position={entry?.positionInSeries ?? 1}
-                  totalBooks={series.totalBooks}
-                />
-              );
-            })()}
-
             <BookTrackerBookDetail
               publication={publication}
               onAddToCollection={() => setShowCollectionDialog(true)}
@@ -196,6 +183,7 @@ export default function BookTrackerBookDetailPage(): React.JSX.Element {
                 setShowReviewEditor(true);
               }}
               hasReview={!!myReview}
+              collections={bookCollections}
             />
 
             {/* Reading progress (shown when status is Reading or Completed) */}
@@ -412,7 +400,10 @@ export default function BookTrackerBookDetailPage(): React.JSX.Element {
             <AddToCollectionDialog
               bookId={publicationId}
               open={showCollectionDialog}
-              onClose={() => setShowCollectionDialog(false)}
+              onClose={() => {
+                setShowCollectionDialog(false);
+                void loadBookCollections();
+              }}
             />
           </div>
         )}

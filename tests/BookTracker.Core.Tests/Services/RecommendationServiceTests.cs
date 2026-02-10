@@ -18,6 +18,7 @@ public class RecommendationServiceTests
     private readonly IPreferencesService _preferencesService;
     private readonly IAiChatClient _aiClient;
     private readonly IMemoryCache _cache;
+    private readonly IBookSearchService _searchService;
     private readonly RecommendationService _svc;
     private const string UserId = "user-1";
 
@@ -27,8 +28,9 @@ public class RecommendationServiceTests
         _preferencesService = Substitute.For<IPreferencesService>();
         _aiClient = Substitute.For<IAiChatClient>();
         _cache = new MemoryCache(new MemoryCacheOptions());
+        _searchService = Substitute.For<IBookSearchService>();
         var logger = Substitute.For<ILogger<RecommendationService>>();
-        _svc = new RecommendationService(_bookRepo, _preferencesService, _aiClient, _cache, logger);
+        _svc = new RecommendationService(_bookRepo, _preferencesService, _aiClient, _searchService, _cache, logger);
     }
 
     // ── ValidateUserDataAsync ───────────────────────────────────

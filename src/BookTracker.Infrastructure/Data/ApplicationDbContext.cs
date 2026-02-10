@@ -80,16 +80,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<BookReview> BookReviews => Set<BookReview>();
 
     /// <summary>
-    /// Gets or sets the BookSeriesSet DbSet.
-    /// </summary>
-    public DbSet<BookSeries> BookSeriesSet => Set<BookSeries>();
-
-    /// <summary>
-    /// Gets or sets the BookSeriesEntries DbSet.
-    /// </summary>
-    public DbSet<BookSeriesEntry> BookSeriesEntries => Set<BookSeriesEntry>();
-
-    /// <summary>
     /// Gets or sets the FollowedAuthors DbSet.
     /// </summary>
     public DbSet<FollowedAuthor> FollowedAuthors => Set<FollowedAuthor>();
@@ -138,12 +128,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Configure BookReview entity
         ConfigureBookReviewEntity(modelBuilder);
 
-        // Configure BookSeries entity
-        ConfigureBookSeriesEntity(modelBuilder);
-
-        // Configure BookSeriesEntry entity
-        ConfigureBookSeriesEntryEntity(modelBuilder);
-
         // Configure FollowedAuthor entity
         ConfigureFollowedAuthorEntity(modelBuilder);
     }
@@ -168,6 +152,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Other properties
         bookEntity.Property(item => item.Status).IsRequired();
         bookEntity.Property(item => item.AddedDate).IsRequired();
+        bookEntity.Property(item => item.CompletedDate).IsRequired(false);
+        bookEntity.Property(item => item.PageCount).IsRequired(false);
         
         // Indexes for query performance
         bookEntity.HasIndex(item => item.UserId).HasDatabaseName("IX_Books_UserId");
@@ -386,37 +372,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         // Relationships
         entity.HasOne(item => item.Reviewer).WithMany().HasForeignKey(item => item.UserId).OnDelete(DeleteBehavior.Cascade);
         entity.HasOne(item => item.ReviewedBook).WithMany().HasForeignKey(item => item.BookId).OnDelete(DeleteBehavior.Cascade);
-    }
-
-    private static void ConfigureBookSeriesEntity(ModelBuilder modelBuilder)
-    {
-        var entity = modelBuilder.Entity<BookSeries>();
-
-        entity.ToTable("BookSeries");
-        entity.HasKey(item => item.Id);
-
-        // Properties
-        entity.Property(item => item.SeriesTitle).IsRequired().HasMaxLength(200);
-        entity.Property(item => item.RegisteredAt).IsRequired();
-    }
-
-    private static void ConfigureBookSeriesEntryEntity(ModelBuilder modelBuilder)
-    {
-        var entity = modelBuilder.Entity<BookSeriesEntry>();
-
-        entity.ToTable("BookSeriesEntries");
-        entity.HasKey(item => item.Id);
-
-        // Properties
-        entity.Property(item => item.SeriesId).IsRequired();
-        entity.Property(item => item.BookId).IsRequired();
-
-        // Indexes
-        entity.HasIndex(item => new { item.SeriesId, item.BookId }).IsUnique().HasDatabaseName("IX_BookSeriesEntries_SeriesId_BookId");
-
-        // Relationships
-        entity.HasOne(item => item.ParentSeries).WithMany(s => s.Members).HasForeignKey(item => item.SeriesId).OnDelete(DeleteBehavior.Cascade);
-        entity.HasOne(item => item.LinkedBook).WithMany().HasForeignKey(item => item.BookId).OnDelete(DeleteBehavior.Cascade);
     }
 
     private static void ConfigureFollowedAuthorEntity(ModelBuilder modelBuilder)

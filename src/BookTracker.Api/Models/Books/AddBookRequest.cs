@@ -38,6 +38,9 @@ public record AddBookRequest
     [Required]
     public BookStatus Status { get; init; }
 
+    /// <summary>Gets the optional page count.</summary>
+    public int? PageCount { get; init; }
+
     /// <summary>Gets the optional source where the book was discovered.</summary>
     public string? Source { get; init; }
 }

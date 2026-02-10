@@ -17,13 +17,15 @@ public interface IBookService
     /// <summary>Adds a new book to the user's library.</summary>
     Task<Book> AddBookAsync(string userId, string title, string author,
         string? isbn, string? coverImageUrl, string? description,
-        string[]? genres, DateTime? publicationDate, BookStatus status, string? source);
+        string[]? genres, DateTime? publicationDate, BookStatus status, string? source,
+        int? pageCount = null);
 
     /// <summary>Updates an existing book's fields.</summary>
     Task<Book> UpdateBookAsync(string userId, Guid bookId,
         string? title, string? author, BookStatus? status,
         string? isbn, string? coverImageUrl, string? description,
-        string[]? genres, DateTime? publicationDate, string? source);
+        string[]? genres, DateTime? publicationDate, string? source,
+        int? pageCount = null);
 
     /// <summary>Updates only the reading status of a book.</summary>
     Task<Book> UpdateBookStatusAsync(string userId, Guid bookId, BookStatus status);

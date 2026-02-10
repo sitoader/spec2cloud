@@ -32,14 +32,14 @@ const FRIENDLY_MESSAGES: ReadonlyMap<number, string> = new Map([
  * Generate AI-powered book recommendations.
  *
  * Calls POST /api/recommendations/generate with an optional count
- * parameter (1–10, defaults to 5 on the server).
+ * parameter (1–10, defaults to 10 on the server).
  */
 export async function bookTrackerGenerateRecommendations(
   count?: number,
 ): Promise<BookTrackerRecommendationsResponse> {
   return apiClient<BookTrackerRecommendationsResponse>(GENERATE_ENDPOINT, {
     method: 'POST',
-    body: JSON.stringify({ count: count ?? 5 }),
+    body: JSON.stringify({ count: count ?? 10 }),
   });
 }
 
