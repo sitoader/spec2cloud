@@ -1,294 +1,158 @@
+# Book tracking app
 
-# spec2cloud
-
-**Spec2Cloud** is an AI-powered development workflow that transforms high-level product ideas into production-ready applications deployed on Azure—using specialized GitHub Copilot agents working together.
-
-https://github.com/user-attachments/assets/f0529e70-f437-4a14-93bc-4ab5a0450540
-
-## 🎯 Overview
-
-This repository provides a preconfigured development environment and agent-driven workflow that takes you from product concept to deployed application through a structured, step-by-step process.
-
-## 🚀 Quick Start
-
-**New to Spec2Cloud? Start here:**
-
-📖 **[Complete Getting Started Guide](./GETTING_STARTED.md)** - Step-by-step walkthrough from idea to deployed app
-
-⚡ **[Workflow Cheat Sheet](./WORKFLOW_CHEAT_SHEET.md)** - Quick reference for commands and agents
-
-### TL;DR - The 3-Minute Version
-1. **Open in Dev Container** - Everything is preconfigured
-2. **Chat with `@pm`** - Share your app idea, then type `/prd` and `/frd`
-3. **Chat with `@dev`** - Type `/plan` then `/implement` or `/delegate`
-4. **Chat with `@azure`** - Type `/deploy` to get your app on Azure
-
-**That's it!** Each agent guides you through their part of the process.
-
-## 🏗️ Architecture
-
-### Development Environment
-
-The `.devcontainer/` folder provides a **ready-to-use development container** with:
-- Python 3.12
+App developed using spec2cloud.
 
 
 
+## Decision Flowchart
 
-- Azure CLI & Azure Developer CLI (azd)
-- TypeScript
-- Docker-in-Docker
-- VS Code extensions: GitHub Copilot Chat, Azure Pack, AI Studio
-
-### MCP Servers
-
-The `.vscode/mcp.json` configures **Model Context Protocol servers** that give agents access to:
-- **context7** - Up-to-date library documentation
-- **github** - Repository management and operations
-- **microsoft.docs.mcp** - Official Microsoft/Azure documentation
-- **playwright** - Browser automation capabilities
-- **deepcontext** - Repository context and understanding for external repos
-
-### AI Agents (Chat Modes)
-
-Four specialized agents in `.github/chatmodes/`:
-
-#### 1. **PM Agent** (`@pm`) - Product Manager
-- **Model**: o3-mini
-- **Tools**: Edit files, search, fetch web content
-- **Purpose**: Translates ideas into structured PRDs and FRDs
-- **Instructions**: Asks clarifying questions, identifies business goals, creates living documentation
-
-#### 2. **Dev Lead Agent** (`@dev-lead`) - Technical Lead
-- **Model**: Claude Sonnet 4
-- **Tools**: Read files, search, semantic analysis
-- **Purpose**: Reads all standards from `standards/` and generates comprehensive `AGENTS.md`
-- **Instructions**: Analyzes engineering standards, creates unified agent guidelines, establishes coding patterns
-- **Usage**: Run `/generate-agents` at project start (can defer until before `/plan` and `/implement`)
-
-#### 3. **Dev Agent** (`@dev`) - Developer
-- **Model**: Claude Sonnet 4
-- **Tools**: Full development suite + Context7, GitHub, Microsoft Docs, Copilot Coding Agent, AI Toolkit
-- **Purpose**: Breaks down features into tasks, implements code, or delegates to GitHub Copilot
-- **Instructions**: Analyzes specs, writes modular code, follows architectural patterns, creates GitHub issues
-
-#### 4. **Azure Agent** (`@azure`) - Cloud Architect
-- **Model**: Claude Sonnet 4
-- **Tools**: Azure resource management, Bicep, deployment tools, infrastructure best practices
-- **Purpose**: Deploys applications to Azure with IaC and CI/CD pipelines
-- **Instructions**: Analyzes codebase, generates Bicep templates, creates GitHub Actions, uses Azure Dev CLI
-
-## 📋 Simple Workflow
-
-```
-💡 Your Idea → @pm → @dev → @azure → � Deployed App
-```
-
-**Detailed workflow:**
 ```mermaid
-graph LR
-    A[� App Idea] --> B[@pm /prd]
-    B --> C[@pm /frd]
-    C --> D[@dev /plan]
-    D --> E{Choose}
-    E --> F[@dev /implement]
-    E --> G[@dev /delegate]
-    F --> H[@azure /deploy]
-    G --> H
-    H --> I[🚀 Live App]
+flowchart TD
+    Start(["🚀 START HERE"])
+    Q1{"Do you have an<br/>existing codebase?"}
+
+    Start --> Q1
+
+    %% ── Greenfield branch ──
+    Q1 -->|"No — new project"| Q2{"Do you want a<br/>predefined baseline<br/>(shell)?"}
+
+    Q2 -->|"Yes"| ShellGF["🟢 Greenfield<br/><b>Shell-Based</b>"]
+    Q2 -->|"No — start from scratch"| PureGF["🟢 Greenfield<br/><b>Pure (Idea → Code)</b>"]
+
+    %% ── Brownfield branch ──
+    Q1 -->|"Yes — existing code"| Q3{"What is your goal?"}
+
+    Q3 -->|"Document &<br/>understand it"| DocBF["🟠 Brownfield<br/><b>Document Only</b>"]
+    Q3 -->|"Document &<br/>modernize it"| ModBF["🟠 Brownfield<br/><b>Document + Modernize</b>"]
+    Q3 -->|"Add new features<br/>on top"| HybridBF["🟡 Hybrid<br/><b>Brownfield → Greenfield</b>"]
+
+    %% ── Greenfield detail ──
+    PureGF --> GF1["/prd — Create Product Requirements"]
+    GF1 --> GF2["/frd — Break into Feature Specs"]
+    GF2 --> GF3["/generate-agents — Consolidate Standards"]
+    GF3 --> GF4["/plan — Technical Task Breakdown"]
+    GF4 --> GF5{"/implement or /delegate"}
+    GF5 --> GF6["/deploy — IaC + CI/CD → Azure"]
+    GF6 --> DoneGF(["✅ App live on Azure"])
+
+    ShellGF --> S1["Pick a shell repo<br/>(dotnet · agentic-dotnet · agentic-python)"]
+    S1 --> S2["Add requirements in plain language"]
+    S2 --> GF4
+
+    %% ── Brownfield detail ──
+    DocBF --> BF1["/rev-eng — Reverse-engineer codebase"]
+    BF1 --> DoneDoc(["✅ Full specs &<br/>documentation generated"])
+
+    ModBF --> BF2["/rev-eng — Reverse-engineer codebase"]
+    BF2 --> BF3["/modernize — Create modernization plan"]
+    BF3 --> BF4["/plan — Implement modernization tasks"]
+    BF4 --> BF5["/deploy — Deploy to Azure"]
+    BF5 --> DoneMod(["✅ Modernized app<br/>on Azure"])
+
+    HybridBF --> H1["/rev-eng — Document existing code"]
+    H1 --> H2["/prd — Extend with new features"]
+    H2 --> GF2
+
+    %% Styles
+    style Start fill:#e1f5ff,stroke:#039be5
+    style Q1 fill:#fff9c4,stroke:#f9a825
+    style Q2 fill:#fff9c4,stroke:#f9a825
+    style Q3 fill:#fff9c4,stroke:#f9a825
+    style PureGF fill:#c8e6c9,stroke:#2e7d32
+    style ShellGF fill:#c8e6c9,stroke:#2e7d32
+    style DocBF fill:#ffe0b2,stroke:#e65100
+    style ModBF fill:#ffe0b2,stroke:#e65100
+    style HybridBF fill:#fff59d,stroke:#f57f17
+    style DoneGF fill:#e1f5ff,stroke:#039be5
+    style DoneDoc fill:#e1f5ff,stroke:#039be5
+    style DoneMod fill:#e1f5ff,stroke:#039be5
 ```
 
-### Workflow Steps
 
-1. **`/prd`** - Product Requirements Document
-   - PM Agent engages in conversation to understand the product vision
-   - Creates `specs/prd.md` with goals, scope, requirements, and user stories
-   - Living document that evolves with feedback
 
-2. **`/frd`** - Feature Requirements Documents
-   - PM Agent decomposes the PRD into individual features
-   - Creates files in `specs/features/` for each feature
-   - Defines inputs, outputs, dependencies, and acceptance criteria
+## Quick Reference Table
 
-3. **`/generate-agents`** - Generate Agent Guidelines (Optional)
-   - Dev Lead Agent reads all standards from `standards/` directory
-   - Consolidates engineering standards into comprehensive `AGENTS.md`
-   - Can be run at project start or deferred until before `/plan` and `/implement`
-   - **Must be completed before planning and implementation begins**
+| Scenario | Workflow | Key Prompts | Outcome |
+|---|---|---|---|
+| Brand-new app from an idea | **Greenfield (Pure)** | `/prd` → `/frd` → `/generate-agents` → `/plan` → `/implement` or `/delegate` → `/deploy` | Production app on Azure |
+| New app from a shell baseline | **Greenfield (Shell)** | Pick shell → add requirements → `/plan` → `/implement` → `/deploy` | Production app on Azure |
+| Understand / document a codebase | **Brownfield (Doc)** | `/rev-eng` | Specs & docs |
+| Document + modernize a codebase | **Brownfield (Modernize)** | `/rev-eng` → `/modernize` → `/plan` → `/deploy` | Modernized app on Azure |
+| Existing codebase + new features | **Hybrid** | `/rev-eng` → `/prd` → `/frd` → `/plan` → `/implement` → `/deploy` | Extended app on Azure |
 
-4. **`/plan`** - Technical Planning
-   - Dev Agent analyzes FRDs and creates technical task breakdowns
-   - Creates files in `specs/tasks/` with implementation details
-   - Identifies dependencies, estimates complexity, defines scaffolding needs
 
-5. **`/implement`** OR **`/delegate`** - Implementation
-   - **Option A (`/implement`)**: Dev Agent writes code directly in `src/backend` and `src/frontend`
-   - **Option B (`/delegate`)**: Dev Agent creates GitHub Issues with full task descriptions and assigns to GitHub Copilot Coding Agent
-   
-6. **`/deploy`** - Azure Deployment
-   - Azure Agent analyzes the codebase
-   - Generates Bicep IaC templates
-   - Creates GitHub Actions workflows for CI/CD
-   - Deploys to Azure using Azure Dev CLI and MCP tools
 
-## 📁 Documentation Structure
+## Detailed Walkthroughs
 
-The workflow creates living documentation:
+### 🟢 Greenfield — Pure (Idea → Code)
 
-```
-specs/
-├── prd.md              # Product Requirements Document
-├── features/           # Feature Requirements Documents
-│   ├── feature-1.md
-│   └── feature-2.md
-└── tasks/              # Technical Task Specifications
-    ├── task-1.md
-    └── task-2.md
+> **You have**: a product idea or business problem  
+> **You want**: a production-ready app deployed to Azure
 
-src/
-├── backend/            # Backend implementation
-└── frontend/           # Frontend implementation
+| Step | Prompt | Agent | What happens |
+|------|--------|-------|--------------|
+| 1 | `/prd` | PM (`@pm`) | Conversational discovery → `specs/prd.md` |
+| 2 | `/frd` | PM (`@pm`) | PRD decomposed into `specs/features/*.md` |
+| 3 | `/generate-agents` | Dev Lead (`@dev-lead`) | Standards consolidated into `AGENTS.md` |
+| 4 | `/plan` | Dev (`@dev`) | Features broken into `specs/tasks/*.md` |
+| 5 | `/implement` **or** `/delegate` | Dev (`@dev`) | Code written locally **or** GitHub Issues assigned to Copilot Coding Agent |
+| 6 | `/deploy` | Azure (`@azure`) | Bicep IaC + GitHub Actions → Azure |
 
-standards/
-├── general/            # General engineering standards
-├── backend/            # Backend-specific standards
-└── frontend/           # Frontend-specific standards
+### 🟢 Greenfield — Shell-Based
 
-AGENTS.md               # Consolidated agent guidelines (generated)
-mkdocs.yml              # MKdocs configuration for documentation site
-docs/                   # MKdocs documentation source files
-```
+> **You have**: a known tech stack and architectural pattern  
+> **You want**: a running baseline filled in with your requirements
 
-### Documentation with MKdocs
+1. **Pick a shell** that matches your target stack:
+   - [shell-dotnet](https://github.com/EmeaAppGbb/shell-dotnet) — standard .NET
+   - [agentic-shell-dotnet](https://github.com/EmeaAppGbb/agentic-shell-dotnet) — agentic .NET
+   - [agentic-shell-python](https://github.com/EmeaAppGbb/agentic-shell-python) — agentic Python
+2. **Add requirements** in plain language (or run `/prd` + `/frd`).
+3. **Continue from `/plan`** onward — agents fill the gaps (endpoints, UI, storage, tests, deployment).
 
-This repository is configured with **MKdocs** for generating beautiful project documentation:
+### 🟠 Brownfield — Document Only
 
-- **Configuration**: `mkdocs.yml` contains site settings and navigation
-- **Source Files**: Documentation markdown files in `docs/` directory
-- **Standards**: Documentation practices defined in `standards/general/documentation-guidelines.md`
-- **Build & Serve**: Use MKdocs commands to preview and deploy documentation
+> **You have**: an existing codebase with little or no documentation  
+> **You want**: comprehensive specs and documentation
 
-The documentation standards ensure consistency, accessibility, and maintainability across all project documentation.
+| Step | Prompt | Agent | What happens |
+|------|--------|-------|--------------|
+| 1 | `/rev-eng` | Tech Analyst (`@tech-analist`) | Read-only analysis → tasks, feature docs & product vision |
 
-## 🔧 Managing Standards with Git Subtrees
+**Key rules**: the agent **never modifies code**, documents **only what exists**, and is **honest about gaps**.
 
-This repository uses **git subtrees** to integrate engineering standards from external repositories. The `standards/` folder contains subtrees from three separate guideline repositories.
+### 🟠 Brownfield — Document + Modernize
 
-### Technology-Specific Standards via Branches
+> **You have**: a legacy codebase you want to bring up to modern standards  
+> **You want**: a documented, modernized app deployed to Azure
 
-Each standards repository uses **branches** to organize technology-specific rules:
+| Step | Prompt | Agent | What happens |
+|------|--------|-------|--------------|
+| 1 | `/rev-eng` | Tech Analyst (`@tech-analist`) | Reverse-engineer existing code into specs |
+| 2 | `/modernize` | Modernize (`@modernize`) | Modernization plan + risk assessment → `specs/modernize/` |
+| 3 | `/plan` | Dev (`@dev`) | Implements modernization tasks from `specs/tasks/` |
+| 4 | `/deploy` | Azure (`@azure`) | Bicep IaC + CI/CD → Azure |
 
-- **Backend Standards**: Choose between `dotnet` or `python` branches
-- **Frontend Standards**: Choose between `react`, `angular`, or other framework branches
-- **General Standards**: Use `main` branch for universal guidelines
+### 🟡 Hybrid — Brownfield → Greenfield
 
-This approach allows you to pull only the standards relevant to your tech stack.
+> **You have**: an existing codebase **and** new feature ideas  
+> **You want**: documented existing code extended with new capabilities
 
-### Adding Subtrees (Initial Setup)
+1. **`/rev-eng`** — Document the current state.
+2. **`/prd`** — Define the new product vision that includes existing + new features.
+3. **Continue the greenfield flow** from `/frd` onward — all new work is traceable back to specs.
 
-When setting up the repository, specify the appropriate branch for your tech stack:
 
-```bash
-# General standards (always use main)
-git subtree add --prefix standards/general https://github.com/EmeaAppGbb/spec2cloud-guidelines.git main --squash
 
-# Backend standards - choose your stack
-git subtree add --prefix standards/backend https://github.com/EmeaAppGbb/spec2cloud-guidelines-backend.git dotnet --squash
-# OR
-git subtree add --prefix standards/backend https://github.com/EmeaAppGbb/spec2cloud-guidelines-backend.git python --squash
+## Common Use Cases Mapped to Workflows
 
-# Frontend standards - choose your framework
-git subtree add --prefix standards/frontend https://github.com/EmeaAppGbb/spec2cloud-guidelines-frontend.git react --squash
-# OR
-git subtree add --prefix standards/frontend https://github.com/EmeaAppGbb/spec2cloud-guidelines-frontend.git angular --squash
-```
-
-### Updating Subtrees
-
-To pull the latest changes from the upstream guideline repositories, use the same branch:
-
-```bash
-# Update general standards
-git subtree pull --prefix standards/general https://github.com/EmeaAppGbb/spec2cloud-guidelines.git main --squash
-
-# Update backend standards (use your chosen branch)
-git subtree pull --prefix standards/backend https://github.com/EmeaAppGbb/spec2cloud-guidelines-backend.git dotnet --squash
-
-# Update frontend standards (use your chosen branch)
-git subtree pull --prefix standards/frontend https://github.com/EmeaAppGbb/spec2cloud-guidelines-frontend.git react --squash
-```
-
-> **Note**: The `--squash` flag combines all commits from the subtree repository into a single commit, keeping the history clean.
-
-### Switching Technology Stacks
-
-If you need to switch to a different tech stack (e.g., from React to Angular), remove the old subtree and add the new one:
-
-```bash
-# Remove old subtree
-git rm -r standards/frontend
-git commit -m "Remove React standards"
-
-# Add new subtree
-git subtree add --prefix standards/frontend https://github.com/EmeaAppGbb/spec2cloud-guidelines-frontend.git angular --squash
-```
-
-## 🎓 Example Usage
-
-```bash
-# Start with your product idea
-"I want to create a smart AI agent for elderly care that tracks vitals and alerts caregivers"
-
-# Step 1: Create the PRD
-/prd
-
-# Step 2: Break down into features
-/frd
-
-# Step 3: Generate agent guidelines from standards (optional, can defer)
-/generate-agents
-
-# Step 4: Create technical plans
-/plan
-
-# Step 5a: Implement locally
-/implement
-
-# OR Step 5b: Delegate to GitHub Copilot
-/delegate
-
-# Step 6: Deploy to Azure
-/deploy
-```
-
-## 🔑 Key Benefits
-
-- **Zero Setup** - Dev container has everything preconfigured
-- **Structured Process** - Clear workflow from idea to production
-- **AI-Powered** - Specialized agents handle different aspects
-- **Best Practices** - Built-in architectural guidance via `AGENTS.md`
-- **Flexible Implementation** - Choose local development or delegation
-- **Azure-Ready** - Automated IaC and CI/CD generation
-
-## 📖 Learn More
-
-### 📚 Documentation & Guides
-- **[Getting Started Guide](./GETTING_STARTED.md)** - Complete step-by-step walkthrough
-- **[Workflow Cheat Sheet](./WORKFLOW_CHEAT_SHEET.md)** - Quick command reference
-- **[Example Walkthrough](./EXAMPLE_WALKTHROUGH.md)** - See a full app built start to finish
-- **[Troubleshooting Guide](./TROUBLESHOOTING.md)** - Solutions to common issues
-- `AGENTS.md` - Comprehensive engineering guidelines (generated by dev lead)
-
-### 🔧 Technical Details
-- `.github/agents/` - Agent configurations and instructions
-- `.github/prompts/` - Prompt templates for each workflow step
-- `.vscode/mcp.json` - Model Context Protocol server configurations
-- `.devcontainer/` - Development environment setup
-
-## 🤝 Contributing
-
-Contributions welcome! Extend with additional agents, prompts, or MCP servers.
-
----
-
-**From idea to production in minutes, not months.** 🚀
+| Use case | Recommended workflow |
+|---|---|
+| Hackathon / proof of concept | Greenfield (Pure) |
+| Enterprise app with known patterns | Greenfield (Shell-Based) |
+| New team onboarding to legacy system | Brownfield (Document Only) |
+| Pre-acquisition technical due diligence | Brownfield (Document Only) |
+| Migrate from on-prem to Azure | Brownfield (Document + Modernize) |
+| Add AI features to existing SaaS product | Hybrid |
+| Audit & compliance documentation | Brownfield (Document Only) |
+| Knowledge preservation before team changes | Brownfield (Document Only) |
