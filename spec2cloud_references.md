@@ -1,8 +1,3 @@
-# Book tracking app
-
-App developed using spec2cloud.
-
-
 
 ## Decision Flowchart
 
